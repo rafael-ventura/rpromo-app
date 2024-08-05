@@ -1,7 +1,15 @@
 <template>
   <v-app>
     <v-container>
-      <h1>Gerador de Fichas Cadastrais</h1>
+      <v-row align="center">
+        <v-col cols="auto">
+          <v-img src="./assets/logo.jpeg" alt="Logo" height="100" width="100"></v-img>
+        </v-col>
+        <v-col>
+          <h1>Gerador de Fichas Cadastrais</h1>
+        </v-col>
+      </v-row>
+      <br>
       <div v-if="!autenticado">
         <PasswordInput v-model="senha"/>
         <v-btn @click="verificarSenha">Entrar</v-btn>
