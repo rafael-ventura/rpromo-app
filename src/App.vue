@@ -3,68 +3,29 @@
     <v-container>
       <h1>Gerador de Fichas Cadastrais</h1>
       <div v-if="!autenticado">
-        <v-text-field
-            v-model="senha"
-            :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-            :type="showPassword ? 'text' : 'password'"
-            label="Digite a senha"
-            @click:append="showPassword = !showPassword"
-        ></v-text-field>
+        <PasswordInput v-model="senha"/>
         <v-btn @click="verificarSenha">Entrar</v-btn>
       </div>
       <div v-if="autenticado">
-        <v-text-field
-            v-model="search"
-            label="Buscar por Nome"
-            class="mb-4"
-            clearable
-        ></v-text-field>
-        <v-row>
-          <v-col
+        <SearchBar v-model="search" @search="filterUsers"/>
+        <v-row v-if="!loading">
+          <UserCard
               v-for="user in filteredUsers"
               :key="user['Nome Completo']"
-              cols="12"
-              sm="6"
-              md="4"
-          >
-            <v-card class="mb-4">
-              <v-card-title>{{ user['Nome Completo'] }}</v-card-title>
-              <v-card-text>
-                <p><strong>Telefone:</strong> {{ user['Numero de Telefone'] }}</p>
-                <p><strong>RG:</strong> {{ user['RG '] }}</p>
-                <p><strong>Email:</strong> {{ user['E-mail'] }}</p>
-                <v-img
-                    v-if="user['Fotos']"
-                    :src="getImageUrl(user['Fotos'])"
-                    aspect-ratio="1.75"
-                ></v-img>
-              </v-card-text>
-              <v-card-actions>
-                <v-btn @click="gerarPDF(user)">Gerar PDF</v-btn>
-                <v-btn @click="abrirModal(user)">Ver Detalhes</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-col>
+              :user="user"
+              @generate-pdf="gerarPDF"
+              @view-details="abrirModal"
+          />
+        </v-row>
+        <v-row v-else justify="center">
+          <v-progress-circular indeterminate></v-progress-circular>
         </v-row>
       </div>
-      <v-dialog v-model="modal" max-width="600px">
-        <v-card>
-          <v-card-title>{{ selectedUser['Nome Completo'] }}</v-card-title>
-          <v-card-text>
-            <v-list dense>
-              <v-list-item v-for="(value, key) in selectedUser" :key="key">
-                <v-list-item-content>
-                  <v-list-item-title>{{ key }}</v-list-item-title>
-                  <v-list-item-subtitle>{{ value }}</v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list>
-          </v-card-text>
-          <v-card-actions>
-            <v-btn @click="modal = false">Fechar</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+      <UserDetailsDialog
+          :user="selectedUser"
+          v-model:visible="modal"
+          @close="modal = false"
+      />
     </v-container>
   </v-app>
 </template>
@@ -72,26 +33,30 @@
 <script>
 import axios from 'axios';
 import jsPDF from 'jspdf';
+import SearchBar from './components/SearchBar.vue';
+import UserCard from './components/UserCard.vue';
+import UserDetailsDialog from './components/UserDetails';
+import PasswordInput from './components/PasswordInput.vue';
 
 export default {
+  components: {
+    SearchBar,
+    UserCard,
+    UserDetailsDialog,
+    PasswordInput
+  },
   data() {
     return {
       senha: '',
-      showPassword: false,
       senhaCorreta: process.env.VUE_APP_PASSWORD,
       autenticado: false,
       users: [],
+      filteredUsers: [],
       search: '',
       selectedUser: null,
       modal: false,
+      loading: false,
     };
-  },
-  computed: {
-    filteredUsers() {
-      return this.users.filter(user =>
-          user['Nome Completo'].toLowerCase().includes(this.search.toLowerCase())
-      );
-    }
   },
   methods: {
     verificarSenha() {
@@ -103,6 +68,7 @@ export default {
       }
     },
     async carregarUsuarios() {
+      this.loading = true;
       const API_KEY = process.env.VUE_APP_API_KEY;
       const sheetId = process.env.VUE_APP_SHEET_ID;
       const sheetRange = 'A:Z'; // Ajuste o intervalo conforme necessário
@@ -119,6 +85,7 @@ export default {
 
         if (!rows || rows.length === 0) {
           console.error('Nenhum dado encontrado na planilha.');
+          this.loading = false;
           return;
         }
 
@@ -133,9 +100,13 @@ export default {
           return user;
         });
 
+        this.filteredUsers = this.users;
+
         console.log('Usuários processados:', this.users); // Log dos usuários processados
       } catch (error) {
         console.error('Erro ao carregar usuários:', error); // Log de erro detalhado
+      } finally {
+        this.loading = false;
       }
     },
     gerarPDF(user) {
@@ -152,14 +123,22 @@ export default {
       this.selectedUser = user;
       this.modal = true;
     },
-    getImageUrl(link) {
-      const regex = /\/d\/(.*?)\//;
-      const match = link.match(regex);
-      if (match && match[1]) {
-        return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+    filterUsers(query) {
+      if (!query) {
+        this.filteredUsers = this.users;
+        return;
       }
-      return link;
+      this.filteredUsers = this.users.filter(user => {
+        const nomeCompleto = user['Nome Completo'];
+        return nomeCompleto && nomeCompleto.toLowerCase().includes(query.toLowerCase());
+      });
     }
   }
 };
 </script>
+
+<style>
+.v-progress-circular {
+  margin-top: 20px;
+}
+</style>
