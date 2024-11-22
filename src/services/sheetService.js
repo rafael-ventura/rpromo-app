@@ -4,7 +4,7 @@ export default {
     async carregarUsuarios() {
         const API_KEY = process.env.VUE_APP_API_KEY;
         const sheetId = process.env.VUE_APP_SHEET_ID;
-        const sheetRange = "A:Z";
+        const sheetRange = "A:AI";
         const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetRange}?key=${API_KEY}`;
 
         try {
@@ -17,15 +17,17 @@ export default {
             }
 
             const headers = rows[0];
-            return rows.slice(1)
+            return rows
+                .slice(1)
                 .map((row) => {
                     const user = {};
                     headers.forEach((header, index) => {
-                        user[header] = row[index] || ""; // Preenche valores ausentes com string vazia
+                        // Remove espaços em branco no início e no fim de cada valor
+                        user[header.trim()] = (row[index] || "").trim();
                     });
                     return user;
                 })
-                .filter(user => user['CPF'] || user['RG']); // Filtra usuários com CPF ou RG
+                .filter((user) => user["CPF"] || user["RG"]); // Filtra usuários com CPF ou RG
         } catch (error) {
             console.error("Erro ao carregar usuários:", error);
             return [];

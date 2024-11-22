@@ -1,0 +1,78 @@
+<div style="font-family: Arial, sans-serif; padding: 30px; max-width: 900px; margin: auto; font-size: 16px;">
+
+    <!-- Cabeçalho -->
+    <h1 style="text-align: center; color: #333; font-size: 28px; margin-bottom: 20px;">Ficha Cadastral</h1>
+
+    <!-- Seção Nome e Contato -->
+    <div style="border: 2px solid #ddd; border-radius: 12px; padding: 20px; margin-bottom: 20px; font-size: 18px;">
+        <p><strong>Nome Completo:</strong> ${user["Nome Completo"]}</p>
+        <p><strong>Telefone:</strong> ${user["Numero de Telefone"]}</p>
+        <p><strong>E-mail:</strong> ${user["E-mail"]}</p>
+    </div>
+
+    <!-- Seção Documentos -->
+    <div style="border: 2px solid #ddd; border-radius: 12px; padding: 20px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 20px; font-size: 18px;">
+        <div style="flex: 1;">
+            <p><strong>CPF:</strong> ${user["CPF"]}</p>
+            <p><strong>RG:</strong> ${user["RG"]}</p>
+        </div>
+        <div style="flex: 1;">
+            <p><strong>Órgão Emissor:</strong> ${user["Órgão Emissor"]}</p>
+            <p><strong>Data de Expedição:</strong> ${user["Data Expedição"]}</p>
+        </div>
+        <div style="flex: 1;">
+            <p><strong>Nome do Pai:</strong> ${user["Nome do Pai"]}</p>
+            <p><strong>Nome da Mãe:</strong> ${user["Nome da Mae"]}</p>
+        </div>
+    </div>
+
+    <!-- Seção Pessoais -->
+    <div style="border: 2px solid #ddd; border-radius: 12px; padding: 20px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 20px; font-size: 18px;">
+        <div style="flex: 1;">
+            <p><strong>Raça/Cor:</strong> ${user["Raça/Cor"]}</p>
+            <p><strong>Naturalidade:</strong> ${user["Naturalidade"]}</p>
+        </div>
+        <div style="flex: 1;">
+            <p><strong>Data de Nascimento:</strong> ${user["Data de Nascimento"]}</p>
+            <p><strong>Sexo:</strong> ${user["Sexo"]}</p>
+        </div>
+    </div>
+
+    <!-- Seção Eleitoral -->
+    <div style="border: 2px solid #ddd; border-radius: 12px; padding: 20px; margin-bottom: 20px; font-size: 18px;">
+        <p><strong>Título Eleitoral:</strong> ${user["Titulo"]}</p>
+        <p><strong>Zona Eleitoral:</strong> ${user["Zona Eleitoral"]}</p>
+        <p><strong>Seção:</strong> ${user["Seção"]}</p>
+        <p><strong>Carteira de Trabalho:</strong> ${user["Carteira de Trabalho"]}</p>
+        <p><strong>Data de Emissão:</strong> ${user["Data de Emissão"]}</p>
+    </div>
+
+    <!-- Seção Financeira -->
+    <div style="border: 2px solid #ddd; border-radius: 12px; padding: 20px; margin-bottom: 20px; font-size: 18px;">
+        <p><strong>PIS:</strong> ${user["PIS"]}</p>
+        <p><strong>Tipo de Conta:</strong> ${user["Qual seu tipo de conta?"]}</p>
+        <p><strong>Agência Bancária:</strong> ${user["Agencia Bancaria"]}</p>
+        <p><strong>Número da Conta:</strong> ${user["Numero da Conta"]}</p>
+        <p><strong>Banco:</strong> ${user["Banco"]}</p>
+        <p><strong>Chave Pix:</strong> ${user["Chave Pix"]}</p>
+    </div>
+
+    <!-- Seção Endereço -->
+    <div style="border: 2px solid #ddd; border-radius: 12px; padding: 20px; margin-bottom: 20px; font-size: 18px;">
+        <p><strong>Rua:</strong> ${user["Rua"]}</p>
+        <p><strong>Bairro:</strong> ${user["Bairro"]}</p>
+        <p><strong>Cidade:</strong> ${user["Cidade"]}</p>
+        <p><strong>CEP:</strong> ${user["CEP"]}</p>
+    </div>
+
+    <!-- Seção Certificado de Reservista -->
+    ${
+    isMale
+    ? `
+    <div style="border: 2px solid #ddd; border-radius: 12px; padding: 20px; margin-bottom: 20px; font-size: 18px;">
+        <p><strong>Certificado de Reservista:</strong> ${user["Certificado de Reservista"]}</p>
+    </div>
+    `
+    : ""
+    }
+</div>

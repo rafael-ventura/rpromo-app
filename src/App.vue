@@ -14,7 +14,7 @@
         <PasswordInput v-model="senha"/>
         <v-btn @click="verificarSenha">Entrar</v-btn>
       </div>
-      <div v-if="autenticado">
+      <div v-else>
         <SearchBar v-model="search" @search="filterUsers"/>
         <v-data-table
             :headers="headers"
@@ -58,18 +58,18 @@
 </template>
 
 <script>
-import jsPDF from "jspdf";
 import sheetService from "./services/sheetService";
 import SearchBar from "./components/SearchBar.vue";
 import UserDetails from "./components/UserDetails";
 import PasswordInput from "./components/PasswordInput.vue";
 import ActionButton from "@/components/ActionButton.vue";
+import pdfService from "@/services/pdfService";
 
 export default {
   components: {
     ActionButton,
     SearchBar,
-    UserDetails: UserDetails,
+    UserDetails,
     PasswordInput,
   },
   data() {
@@ -97,6 +97,14 @@ export default {
     async verificarSenha() {
       if (this.senha === this.senhaCorreta) {
         this.autenticado = true;
+
+        // Define o tempo de expiração (exemplo: 3 horas a partir de agora)
+        const expirationTime = new Date().getTime() + (3 * 60 * 60 * 1000); // 3 horas em milissegundos
+
+        // Armazena no localStorage
+        localStorage.setItem('autenticado', 'true');
+        localStorage.setItem('autenticadoExpiracao', expirationTime);
+
         await this.carregarUsuarios();
       } else {
         alert("Senha incorreta");
@@ -112,7 +120,6 @@ export default {
         this.loading = false;
       }
     },
-
     removerDuplicados(users) {
       const map = new Map();
       users.forEach(user => {
@@ -121,23 +128,17 @@ export default {
       });
       return Array.from(map.values());
     },
-
-    gerarPDF(user) {
-      const doc = new jsPDF();
-      doc.text(`Ficha Cadastral de ${user["Nome Completo"]}`, 10, 10);
-
-      Object.keys(user).forEach((key, index) => {
-        doc.text(`${key}: ${user[key]}`, 10, 20 + index * 10);
-      });
-
-      doc.save(`${user["Nome Completo"]}.pdf`);
+    async gerarPDF(user) {
+      try {
+        await pdfService.gerarPDF(user);
+      } catch (error) {
+        console.error("Erro ao gerar o PDF:", error);
+      }
     },
-
     abrirModal(user) {
       this.selectedUser = user;
       this.modal = true;
     },
-
     filterUsers(query) {
       if (!query) {
         this.filteredUsers = this.users;
@@ -149,6 +150,20 @@ export default {
               .includes(query.toLowerCase())
       );
     },
+  },
+  created() {
+    const autenticado = localStorage.getItem('autenticado');
+    const expiracao = localStorage.getItem('autenticadoExpiracao');
+
+    // Verifica se a autenticação existe e não expirou
+    if (autenticado === 'true' && expiracao && new Date().getTime() < parseInt(expiracao)) {
+      this.autenticado = true;
+      this.carregarUsuarios();
+    } else {
+      // Se a autenticação expirou, limpa o localStorage
+      localStorage.removeItem('autenticado');
+      localStorage.removeItem('autenticadoExpiracao');
+    }
   },
 };
 </script>
