@@ -37,6 +37,7 @@
             @click="openGallery"
         />
         <ActionButton
+            variant="elevated"
             class="action-btn"
             label="Fechar"
             color="blue"
