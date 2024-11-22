@@ -16,137 +16,139 @@
       </div>
       <div v-if="autenticado">
         <SearchBar v-model="search" @search="filterUsers"/>
-        <v-row v-if="!loading">
-          <UserCard
-              v-for="user in filteredUsers"
-              :key="user['Nome Completo']"
-              :user="user"
-              @generate-pdf="gerarPDF"
-              @view-details="abrirModal"
-          />
-        </v-row>
-        <v-row v-else justify="center">
+        <v-data-table
+            :headers="headers"
+            :items="filteredUsers"
+            :items-per-page="itemsPerPage"
+            v-model:page="page"
+            class="elevation-1"
+        >
+          <template v-slot:body="{ items }">
+            <tr v-for="user in items" :key="user['Nome Completo']">
+              <td>{{ user['Nome Completo'] }}</td>
+              <td>{{ user['Numero de Telefone'] }}</td>
+              <td>{{ user['E-mail'] }}</td>
+              <td>
+                <ActionButton
+                    label="Gerar PDF"
+                    icon="mdi-file-pdf-box"
+                    color="red"
+                    @click="gerarPDF(user)"
+                />
+                <ActionButton
+                    label="Ver Detalhes"
+                    icon="mdi-eye"
+                    color="blue"
+                    @click="abrirModal(user)"
+                />
+              </td>
+            </tr>
+          </template>
+        </v-data-table>
+        <v-row v-if="loading" justify="center">
           <v-progress-circular indeterminate></v-progress-circular>
         </v-row>
       </div>
-      <UserDetailsDialog
+      <UserDetails
           :user="selectedUser"
           v-model:visible="modal"
-          @close="modal = false"
       />
     </v-container>
   </v-app>
 </template>
 
 <script>
-import axios from 'axios';
-import jsPDF from 'jspdf';
-import SearchBar from './components/SearchBar.vue';
-import UserCard from './components/UserCard.vue';
-import UserDetailsDialog from './components/UserDetails';
-import PasswordInput from './components/PasswordInput.vue';
+import jsPDF from "jspdf";
+import sheetService from "./services/sheetService";
+import SearchBar from "./components/SearchBar.vue";
+import UserDetails from "./components/UserDetails";
+import PasswordInput from "./components/PasswordInput.vue";
+import ActionButton from "@/components/ActionButton.vue";
 
 export default {
   components: {
+    ActionButton,
     SearchBar,
-    UserCard,
-    UserDetailsDialog,
-    PasswordInput
+    UserDetails: UserDetails,
+    PasswordInput,
   },
   data() {
     return {
-      senha: '',
+      senha: "",
       senhaCorreta: process.env.VUE_APP_PASSWORD,
       autenticado: false,
       users: [],
       filteredUsers: [],
-      search: '',
+      search: "",
       selectedUser: null,
       modal: false,
       loading: false,
+      itemsPerPage: 5,
+      page: 1,
+      headers: [
+        {text: "Nome Completo", value: "Nome Completo"},
+        {text: "Telefone", value: "Numero de Telefone"},
+        {text: "E-mail", value: "E-mail"},
+        {text: "Ações", value: "actions", sortable: false},
+      ],
     };
   },
   methods: {
-    verificarSenha() {
+    async verificarSenha() {
       if (this.senha === this.senhaCorreta) {
         this.autenticado = true;
-        this.carregarUsuarios();
+        await this.carregarUsuarios();
       } else {
-        alert('Senha incorreta');
+        alert("Senha incorreta");
       }
     },
     async carregarUsuarios() {
       this.loading = true;
-      const API_KEY = process.env.VUE_APP_API_KEY;
-      const sheetId = process.env.VUE_APP_SHEET_ID;
-      const sheetRange = 'A:Z'; // Ajuste o intervalo conforme necessário
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetRange}?key=${API_KEY}`;
-
-      console.log('URL da API:', url); // Adicionando log para verificar a URL
-
       try {
-        const response = await axios.get(url);
-        console.log('Resposta da API:', response); // Log da resposta completa
-
-        const rows = response.data.values;
-        console.log('Dados das linhas:', rows); // Log dos dados das linhas
-
-        if (!rows || rows.length === 0) {
-          console.error('Nenhum dado encontrado na planilha.');
-          this.loading = false;
-          return;
-        }
-
-        const headers = rows[0];
-        console.log('Cabeçalhos:', headers); // Log dos cabeçalhos
-
-        this.users = rows.slice(1).map(row => {
-          let user = {};
-          headers.forEach((header, index) => {
-            user[header] = row[index];
-          });
-          return user;
-        });
-
+        const users = await sheetService.carregarUsuarios();
+        this.users = this.removerDuplicados(users);
         this.filteredUsers = this.users;
-
-        console.log('Usuários processados:', this.users); // Log dos usuários processados
-      } catch (error) {
-        console.error('Erro ao carregar usuários:', error); // Log de erro detalhado
       } finally {
         this.loading = false;
       }
     },
+
+    removerDuplicados(users) {
+      const map = new Map();
+      users.forEach(user => {
+        const key = user['CPF'] || user['RG'];
+        if (key) map.set(key, user);
+      });
+      return Array.from(map.values());
+    },
+
     gerarPDF(user) {
       const doc = new jsPDF();
-      doc.text(`Ficha Cadastral de ${user['Nome Completo']}`, 10, 10);
+      doc.text(`Ficha Cadastral de ${user["Nome Completo"]}`, 10, 10);
 
       Object.keys(user).forEach((key, index) => {
         doc.text(`${key}: ${user[key]}`, 10, 20 + index * 10);
       });
 
-      doc.save(`${user['Nome Completo']}.pdf`);
+      doc.save(`${user["Nome Completo"]}.pdf`);
     },
+
     abrirModal(user) {
       this.selectedUser = user;
       this.modal = true;
     },
+
     filterUsers(query) {
       if (!query) {
         this.filteredUsers = this.users;
         return;
       }
-      this.filteredUsers = this.users.filter(user => {
-        const nomeCompleto = user['Nome Completo'];
-        return nomeCompleto && nomeCompleto.toLowerCase().includes(query.toLowerCase());
-      });
-    }
-  }
+      this.filteredUsers = this.users.filter((user) =>
+          user["Nome Completo"]
+              ?.toLowerCase()
+              .includes(query.toLowerCase())
+      );
+    },
+  },
 };
 </script>
-
-<style>
-.v-progress-circular {
-  margin-top: 20px;
-}
-</style>

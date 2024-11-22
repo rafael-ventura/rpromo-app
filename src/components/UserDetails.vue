@@ -1,37 +1,109 @@
 <template>
-  <v-dialog :value="visible" max-width="600px" @input="updateVisibility">
+  <v-dialog v-model="dialogVisible" max-width="1400px">
     <v-card>
-      <v-card-title>{{ user['Nome Completo'] }}</v-card-title>
-      <v-card-text>
-        <v-list dense>
-          <v-list-item v-for="(value, key) in user" :key="key">
-            <v-list-item-content>
-              <v-list-item-title>{{ key }}</v-list-item-title>
-              <v-list-item-subtitle>{{ value }}</v-list-item-subtitle>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
+      <!-- Cabeçalho -->
+      <v-card-title class="justify-space-between">
+        <h2 class="text-h5">{{ user?.['Nome Completo'] || 'Detalhes do Usuário' }}</h2>
+      </v-card-title>
+
+      <v-divider></v-divider>
+
+      <!-- Conteúdo -->
+      <v-card-text class="card-text">
+        <v-container>
+          <v-row dense>
+            <v-col
+                v-for="(value, key) in user"
+                :key="key"
+                cols="12"
+                md="6"
+            >
+              <strong>{{ key }}:</strong>
+              <p>{{ value || "Não informado" }}</p>
+            </v-col>
+          </v-row>
+        </v-container>
       </v-card-text>
+
+      <!-- Ações -->
       <v-card-actions>
-        <v-btn @click="close">Fechar</v-btn>
+        <v-spacer></v-spacer>
+        <ActionButton
+            label="Fechar"
+            color="blue"
+            icon="mdi-close"
+            @click="closeDialog"
+        />
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script>
+import ActionButton from "@/components/ActionButton.vue";
+
 export default {
+  components: {
+    ActionButton,
+  },
   props: {
-    user: Object,
-    visible: Boolean
+    user: {
+      type: Object,
+      required: false,
+      default: null,
+    },
+    visible: {
+      type: Boolean,
+      required: true,
+    },
+  },
+  computed: {
+    dialogVisible: {
+      get() {
+        return this.visible; // Retorna o valor da prop visível do pai
+      },
+      set(value) {
+        this.$emit("update:visible", value); // Atualiza o estado no componente pai
+      },
+    },
   },
   methods: {
-    close() {
-      this.$emit('close');
+    closeDialog() {
+      this.$emit("update:visible", false);
     },
-    updateVisibility(value) {
-      this.$emit('update:visible', value);
-    }
-  }
+  },
 };
 </script>
+
+<style scoped>
+/* Estilo para destacar o título */
+.v-card-title h2 {
+  font-weight: bold;
+  margin: 0;
+  padding-bottom: 0;
+}
+
+/* Removendo padding desnecessário da seção de texto */
+.card-text {
+  padding-bottom: 0;
+}
+
+/* Reduzindo o espaço entre o texto e o botão */
+.v-card-actions {
+  margin-top: 0;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* Estilo para os textos */
+p {
+  font-size: 1rem;
+}
+
+/* Ajuste de estilo para ActionButton */
+.action-btn {
+  font-size: 1rem;
+  color: white !important; /* Força o texto branco */
+}
+</style>
+
