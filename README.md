@@ -89,9 +89,9 @@ Um sistema moderno e robusto para gerenciamento de fichas cadastrais, desenvolvi
    ```
 
 3. **Execute o servidor de desenvolvimento**
-   ```bash
-   ng serve
-   ```
+```bash
+ng serve
+```
 
 4. **Acesse a aplicação**
    - Abra o navegador em `http://localhost:4200`
