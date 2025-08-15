@@ -44,7 +44,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAnimationsAsync(),
     provideHttpClient(),
-    
+
     // Inicialização do sistema de dados
     {
       provide: APP_INITIALIZER,
@@ -52,7 +52,7 @@ export const appConfig: ApplicationConfig = {
       deps: [DataConfigService],
       multi: true
     },
-    
+
     importProvidersFrom([
       // Material Modules
       MatButtonModule,

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { IDataProvider, DataProviderConfig } from '../interfaces/data-provider.interface';
 import { LocalStorageProvider } from '../data-providers/localStorage.provider';
+import { SupabaseProvider } from '../data-providers/supabase.provider';
 import { PessoaRepository } from '../repositories/pessoa.repository';
 
 /**
@@ -15,7 +16,7 @@ import { PessoaRepository } from '../repositories/pessoa.repository';
 export class DataConfigService {
   private currentProviderSubject = new BehaviorSubject<IDataProvider | null>(null);
   private configSubject = new BehaviorSubject<DataProviderConfig>({
-    type: 'localStorage',
+    type: 'supabase',
     config: {}
   });
 
@@ -24,10 +25,11 @@ export class DataConfigService {
 
   constructor(
     private localStorageProvider: LocalStorageProvider,
+    private supabaseProvider: SupabaseProvider,
     private pessoaRepository: PessoaRepository
   ) {
-    // Inicializar com localStorage por padrão
-    this.setProvider('localStorage', {});
+    // Inicializar com Supabase por padrão
+    this.setProvider('supabase', {});
   }
 
   /**
@@ -68,28 +70,16 @@ export class DataConfigService {
   }> {
     return [
       {
+        type: 'supabase',
+        name: 'Supabase',
+        description: 'Backend completo com PostgreSQL e API REST',
+        requiresConfig: true
+      },
+      {
         type: 'localStorage',
         name: 'LocalStorage',
-        description: 'Armazena dados localmente no navegador',
+        description: 'Armazena dados localmente no navegador (desenvolvimento)',
         requiresConfig: false
-      },
-      {
-        type: 'http',
-        name: 'API REST',
-        description: 'Conecta com API REST via HTTP',
-        requiresConfig: true
-      },
-      {
-        type: 'googleSheets',
-        name: 'Google Sheets',
-        description: 'Integra com planilhas do Google',
-        requiresConfig: true
-      },
-      {
-        type: 'firebase',
-        name: 'Firebase',
-        description: 'Banco de dados em tempo real do Google',
-        requiresConfig: true
       }
     ];
   }
@@ -99,17 +89,11 @@ export class DataConfigService {
    */
   validateConfig(type: DataProviderConfig['type'], config: any): boolean {
     switch (type) {
+      case 'supabase':
+        return true; // Configuração vem do environment
+
       case 'localStorage':
         return true; // Não precisa de configuração
-
-      case 'http':
-        return !!(config.baseUrl && config.baseUrl.trim());
-
-      case 'googleSheets':
-        return !!(config.spreadsheetId && config.apiKey && config.range);
-
-      case 'firebase':
-        return !!(config.apiKey && config.authDomain && config.projectId);
 
       default:
         return false;
@@ -149,25 +133,14 @@ export class DataConfigService {
    */
   private createProvider(type: DataProviderConfig['type'], config: any): IDataProvider | null {
     switch (type) {
+      case 'supabase':
+        return this.supabaseProvider;
+
       case 'localStorage':
         return this.localStorageProvider;
 
-      case 'http':
-        // TODO: Implementar HttpProvider
-        console.warn('HttpProvider não implementado ainda');
-        return null;
-
-      case 'googleSheets':
-        // TODO: Implementar GoogleSheetsProvider
-        console.warn('GoogleSheetsProvider não implementado ainda');
-        return null;
-
-      case 'firebase':
-        // TODO: Implementar FirebaseProvider
-        console.warn('FirebaseProvider não implementado ainda');
-        return null;
-
       default:
+        console.warn(`Provedor não implementado: ${type}`);
         return null;
     }
   }
@@ -205,7 +178,7 @@ export class DataConfigService {
    * Reseta para configuração padrão
    */
   resetToDefault(): void {
-    this.setProvider('localStorage', {});
+    this.setProvider('supabase', {});
     this.saveConfig();
   }
 }
