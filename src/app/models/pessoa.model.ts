@@ -51,7 +51,8 @@ export interface Pessoa {
   // Metadados
   criadoEm: Date;
   atualizadoEm?: Date;
-  status: 'Ativo' | 'Inativo' | 'Pendente';
+  status: 'Ativo' | 'Inativo';
+  motivoInativacao?: string; // Motivo caso esteja inativo
 }
 
 export interface FilhoInfo {

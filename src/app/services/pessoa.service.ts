@@ -24,7 +24,7 @@ export class PessoaService {
     return of(pessoa);
   }
 
-  // Buscar pessoas por termo
+    // Buscar pessoas por termo
   buscarPessoas(termo: string): Observable<Pessoa[]> {
     if (!termo.trim()) {
       return this.pessoasSubject.asObservable();
@@ -35,10 +35,66 @@ export class PessoaService {
       pessoa.nomeCompleto.toLowerCase().includes(termoLower) ||
       pessoa.cpf.includes(termo) ||
       pessoa.email.toLowerCase().includes(termoLower) ||
-      pessoa.telefone.includes(termo)
+      pessoa.telefone.includes(termo) ||
+      pessoa.bairro.toLowerCase().includes(termoLower) ||
+      pessoa.cidade.toLowerCase().includes(termoLower)
     );
 
     return of(pessoasFiltradas);
+  }
+
+  // Buscar pessoas por filtros específicos
+  buscarComFiltros(filtros: {
+    termo?: string;
+    status?: 'Ativo' | 'Inativo' | '';
+    bairro?: string;
+    cidade?: string;
+  }): Observable<Pessoa[]> {
+    let resultado = [...this.pessoas];
+
+    // Filtro por termo de busca
+    if (filtros.termo && filtros.termo.trim()) {
+      const termoLower = filtros.termo.toLowerCase();
+      resultado = resultado.filter(pessoa =>
+        pessoa.nomeCompleto.toLowerCase().includes(termoLower) ||
+        pessoa.cpf.includes(filtros.termo!) ||
+        pessoa.email.toLowerCase().includes(termoLower) ||
+        pessoa.telefone.includes(filtros.termo!)
+      );
+    }
+
+    // Filtro por status
+    if (filtros.status) {
+      resultado = resultado.filter(pessoa => pessoa.status === filtros.status);
+    }
+
+    // Filtro por bairro
+    if (filtros.bairro && filtros.bairro.trim()) {
+      resultado = resultado.filter(pessoa =>
+        pessoa.bairro.toLowerCase().includes(filtros.bairro!.toLowerCase())
+      );
+    }
+
+    // Filtro por cidade
+    if (filtros.cidade && filtros.cidade.trim()) {
+      resultado = resultado.filter(pessoa =>
+        pessoa.cidade.toLowerCase().includes(filtros.cidade!.toLowerCase())
+      );
+    }
+
+    return of(resultado);
+  }
+
+  // Obter lista única de bairros
+  getBairros(): Observable<string[]> {
+    const bairros = [...new Set(this.pessoas.map(p => p.bairro).filter(b => b))].sort();
+    return of(bairros);
+  }
+
+  // Obter lista única de cidades
+  getCidades(): Observable<string[]> {
+    const cidades = [...new Set(this.pessoas.map(p => p.cidade).filter(c => c))].sort();
+    return of(cidades);
   }
 
   // Adicionar nova pessoa
@@ -93,7 +149,7 @@ export class PessoaService {
   }
 
   // Alterar status da pessoa
-  alterarStatus(id: string, novoStatus: 'Ativo' | 'Inativo' | 'Pendente'): Observable<boolean> {
+  alterarStatus(id: string, novoStatus: 'Ativo' | 'Inativo', motivo?: string): Observable<boolean> {
     const pessoa = this.pessoas.find(p => p.id === id);
     if (!pessoa) {
       return of(false);
@@ -101,6 +157,13 @@ export class PessoaService {
 
     pessoa.status = novoStatus;
     pessoa.atualizadoEm = new Date();
+
+    // Adicionar ou remover motivo conforme status
+    if (novoStatus === 'Inativo' && motivo) {
+      pessoa.motivoInativacao = motivo;
+    } else if (novoStatus === 'Ativo') {
+      pessoa.motivoInativacao = undefined;
+    }
     this.salvarDados();
     this.pessoasSubject.next([...this.pessoas]);
 

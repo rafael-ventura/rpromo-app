@@ -5,6 +5,9 @@
         <mat-icon>person_add</mat-icon>
         {{ isEdicao ? 'Editar Cadastro' : 'Nova Ficha Cadastral' }}
       </mat-card-title>
+      <mat-card-subtitle>
+        Preencha todos os campos obrigatórios para completar o cadastro
+      </mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
@@ -13,41 +16,463 @@
         <!-- Dados Pessoais -->
         <mat-expansion-panel [expanded]="true">
           <mat-expansion-panel-header>
-            <mat-panel-title>Dados Pessoais</mat-panel-title>
+            <mat-panel-title>
+              <mat-icon>person</mat-icon>
+              Dados Pessoais
+            </mat-panel-title>
           </mat-expansion-panel-header>
 
           <div formGroupName="dadosPessoais" class="form-section">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Nome Completo *</mat-label>
-              <input matInput formControlName="nomeCompleto" required>
-            </mat-form-field>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Nome Completo *</mat-label>
+                <input matInput formControlName="nomeCompleto" required>
+                <mat-error *ngIf="getFieldError('dadosPessoais.nomeCompleto')">
+                  {{ getFieldError('dadosPessoais.nomeCompleto') }}
+                </mat-error>
+              </mat-form-field>
+            </div>
 
             <div class="form-row">
               <mat-form-field appearance="outline" class="half-width">
                 <mat-label>CPF *</mat-label>
-                <input matInput formControlName="cpf" required>
+                <input matInput formControlName="cpf" placeholder="000.000.000-00" required>
+                <mat-error *ngIf="getFieldError('dadosPessoais.cpf')">
+                  {{ getFieldError('dadosPessoais.cpf') }}
+                </mat-error>
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="half-width">
+                <mat-label>RG *</mat-label>
+                <input matInput formControlName="rg" required>
+                <mat-error *ngIf="getFieldError('dadosPessoais.rg')">
+                  {{ getFieldError('dadosPessoais.rg') }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Órgão Emissor *</mat-label>
+                <input matInput formControlName="orgaoEmissor" required>
+                <mat-error *ngIf="getFieldError('dadosPessoais.orgaoEmissor')">
+                  {{ getFieldError('dadosPessoais.orgaoEmissor') }}
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Data de Expedição *</mat-label>
+                <input matInput [matDatepicker]="pickerExpedicao" formControlName="dataExpedicao" required>
+                <mat-datepicker-toggle matSuffix [for]="pickerExpedicao"></mat-datepicker-toggle>
+                <mat-datepicker #pickerExpedicao></mat-datepicker>
+                <mat-error *ngIf="getFieldError('dadosPessoais.dataExpedicao')">
+                  {{ getFieldError('dadosPessoais.dataExpedicao') }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Data de Nascimento *</mat-label>
+                <input matInput [matDatepicker]="pickerNascimento" formControlName="dataNascimento" required>
+                <mat-datepicker-toggle matSuffix [for]="pickerNascimento"></mat-datepicker-toggle>
+                <mat-datepicker #pickerNascimento></mat-datepicker>
+                <mat-error *ngIf="getFieldError('dadosPessoais.dataNascimento')">
+                  {{ getFieldError('dadosPessoais.dataNascimento') }}
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Sexo *</mat-label>
+                <mat-select formControlName="sexo" required>
+                  <mat-option *ngFor="let opcao of opcoesSexo" [value]="opcao.value">
+                    {{ opcao.label }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="getFieldError('dadosPessoais.sexo')">
+                  {{ getFieldError('dadosPessoais.sexo') }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Raça/Cor *</mat-label>
+                <mat-select formControlName="racaCor" required>
+                  <mat-option *ngFor="let opcao of opcoesRacaCor" [value]="opcao.value">
+                    {{ opcao.label }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="getFieldError('dadosPessoais.racaCor')">
+                  {{ getFieldError('dadosPessoais.racaCor') }}
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Naturalidade *</mat-label>
+                <input matInput formControlName="naturalidade" required>
+                <mat-error *ngIf="getFieldError('dadosPessoais.naturalidade')">
+                  {{ getFieldError('dadosPessoais.naturalidade') }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Nome do Pai</mat-label>
+                <input matInput formControlName="nomePai">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Nome da Mãe</mat-label>
+                <input matInput formControlName="nomeMae">
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
                 <mat-label>E-mail *</mat-label>
                 <input matInput type="email" formControlName="email" required>
+                <mat-error *ngIf="getFieldError('dadosPessoais.email')">
+                  {{ getFieldError('dadosPessoais.email') }}
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Telefone *</mat-label>
+                <input matInput formControlName="telefone" placeholder="(21) 99999-9999" required>
+                <mat-error *ngIf="getFieldError('dadosPessoais.telefone')">
+                  {{ getFieldError('dadosPessoais.telefone') }}
+                </mat-error>
               </mat-form-field>
             </div>
           </div>
         </mat-expansion-panel>
 
+        <!-- Documentos -->
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>description</mat-icon>
+              Documentos
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div formGroupName="documentos" class="form-section">
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="third-width">
+                <mat-label>Título de Eleitor *</mat-label>
+                <input matInput formControlName="tituloEleitor" required>
+                <mat-error *ngIf="getFieldError('documentos.tituloEleitor')">
+                  {{ getFieldError('documentos.tituloEleitor') }}
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="third-width">
+                <mat-label>Zona Eleitoral *</mat-label>
+                <input matInput formControlName="zonaEleitoral" required>
+                <mat-error *ngIf="getFieldError('documentos.zonaEleitoral')">
+                  {{ getFieldError('documentos.zonaEleitoral') }}
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="third-width">
+                <mat-label>Seção Eleitoral *</mat-label>
+                <input matInput formControlName="secaoEleitoral" required>
+                <mat-error *ngIf="getFieldError('documentos.secaoEleitoral')">
+                  {{ getFieldError('documentos.secaoEleitoral') }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Carteira de Trabalho *</mat-label>
+                <input matInput formControlName="carteiraTrabalho" required>
+                <mat-error *ngIf="getFieldError('documentos.carteiraTrabalho')">
+                  {{ getFieldError('documentos.carteiraTrabalho') }}
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Data de Emissão da Carteira *</mat-label>
+                <input matInput [matDatepicker]="pickerEmissao" formControlName="dataEmissaoCarteira" required>
+                <mat-datepicker-toggle matSuffix [for]="pickerEmissao"></mat-datepicker-toggle>
+                <mat-datepicker #pickerEmissao></mat-datepicker>
+                <mat-error *ngIf="getFieldError('documentos.dataEmissaoCarteira')">
+                  {{ getFieldError('documentos.dataEmissaoCarteira') }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>PIS *</mat-label>
+                <input matInput formControlName="pis" required>
+                <mat-error *ngIf="getFieldError('documentos.pis')">
+                  {{ getFieldError('documentos.pis') }}
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Certificado de Reservista</mat-label>
+                <input matInput formControlName="certificadoReservista">
+                <mat-hint>Apenas para homens</mat-hint>
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Dados Bancários -->
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>account_balance</mat-icon>
+              Dados Bancários
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div formGroupName="dadosBancarios" class="form-section">
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Tipo de Conta *</mat-label>
+                <mat-select formControlName="tipoConta" required>
+                  <mat-option *ngFor="let opcao of opcoesTipoConta" [value]="opcao.value">
+                    {{ opcao.label }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="getFieldError('dadosBancarios.tipoConta')">
+                  {{ getFieldError('dadosBancarios.tipoConta') }}
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Banco *</mat-label>
+                <input matInput formControlName="banco" required>
+                <mat-error *ngIf="getFieldError('dadosBancarios.banco')">
+                  {{ getFieldError('dadosBancarios.banco') }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Agência *</mat-label>
+                <input matInput formControlName="agenciaBancaria" required>
+                <mat-error *ngIf="getFieldError('dadosBancarios.agenciaBancaria')">
+                  {{ getFieldError('dadosBancarios.agenciaBancaria') }}
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Número da Conta *</mat-label>
+                <input matInput formControlName="numeroConta" required>
+                <mat-error *ngIf="getFieldError('dadosBancarios.numeroConta')">
+                  {{ getFieldError('dadosBancarios.numeroConta') }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Chave PIX *</mat-label>
+                <input matInput formControlName="chavePix" required>
+                <mat-hint>CPF, e-mail, telefone ou chave aleatória</mat-hint>
+                <mat-error *ngIf="getFieldError('dadosBancarios.chavePix')">
+                  {{ getFieldError('dadosBancarios.chavePix') }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Endereço -->
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>location_on</mat-icon>
+              Endereço (Rio de Janeiro)
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div formGroupName="endereco" class="form-section">
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Rua *</mat-label>
+                <input matInput formControlName="rua" required>
+                <mat-error *ngIf="getFieldError('endereco.rua')">
+                  {{ getFieldError('endereco.rua') }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Bairro *</mat-label>
+                <input matInput formControlName="bairro" required>
+                <mat-hint>Ex: Copacabana, Tijuca, Barra da Tijuca</mat-hint>
+                <mat-error *ngIf="getFieldError('endereco.bairro')">
+                  {{ getFieldError('endereco.bairro') }}
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Cidade *</mat-label>
+                <mat-select formControlName="cidade" required>
+                  <mat-option value="Rio de Janeiro">Rio de Janeiro</mat-option>
+                  <mat-option value="Niterói">Niterói</mat-option>
+                  <mat-option value="São Gonçalo">São Gonçalo</mat-option>
+                  <mat-option value="Duque de Caxias">Duque de Caxias</mat-option>
+                  <mat-option value="Nova Iguaçu">Nova Iguaçu</mat-option>
+                  <mat-option value="Belford Roxo">Belford Roxo</mat-option>
+                  <mat-option value="São João de Meriti">São João de Meriti</mat-option>
+                  <mat-option value="Campos dos Goytacazes">Campos dos Goytacazes</mat-option>
+                  <mat-option value="Petrópolis">Petrópolis</mat-option>
+                  <mat-option value="Volta Redonda">Volta Redonda</mat-option>
+                  <mat-option value="Magé">Magé</mat-option>
+                  <mat-option value="Itaboraí">Itaboraí</mat-option>
+                  <mat-option value="Cabo Frio">Cabo Frio</mat-option>
+                  <mat-option value="Angra dos Reis">Angra dos Reis</mat-option>
+                  <mat-option value="Nova Friburgo">Nova Friburgo</mat-option>
+                </mat-select>
+                <mat-error *ngIf="getFieldError('endereco.cidade')">
+                  {{ getFieldError('endereco.cidade') }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>CEP *</mat-label>
+                <input matInput formControlName="cep" placeholder="00000-000" required>
+                <mat-error *ngIf="getFieldError('endereco.cep')">
+                  {{ getFieldError('endereco.cep') }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Informações Familiares -->
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>family_restroom</mat-icon>
+              Informações Familiares
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div formGroupName="familia" class="form-section">
+            <div class="form-row">
+              <mat-checkbox formControlName="temFilhos" (change)="onTemFilhosChange($event)">
+                Tem filhos?
+              </mat-checkbox>
+            </div>
+
+            <div *ngIf="cadastroForm.get('familia.temFilhos')?.value" class="filhos-section">
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="half-width">
+                  <mat-label>Quantidade de Filhos</mat-label>
+                  <input matInput type="number" formControlName="quantidadeFilhos" min="0" max="20">
+                </mat-form-field>
+              </div>
+
+              <div formArrayName="nomesFilhos">
+                <h4>Informações dos Filhos</h4>
+                <div *ngFor="let filho of getNomesFilhosControls(); let i = index" [formGroupName]="i" class="filho-item">
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="half-width">
+                      <mat-label>Nome do Filho {{ i + 1 }}</mat-label>
+                      <input matInput formControlName="nome">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="half-width">
+                      <mat-label>Data de Nascimento</mat-label>
+                      <input matInput [matDatepicker]="pickerFilho" formControlName="dataNascimento">
+                      <mat-datepicker-toggle matSuffix [for]="pickerFilho"></mat-datepicker-toggle>
+                      <mat-datepicker #pickerFilho></mat-datepicker>
+                    </mat-form-field>
+
+                    <button type="button" mat-icon-button color="warn" (click)="removerFilho(i)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <button type="button" mat-stroked-button color="primary" (click)="adicionarFilho()">
+                  <mat-icon>add</mat-icon>
+                  Adicionar Filho
+                </button>
+              </div>
+            </div>
+          </div>
+        </mat-expansion-panel>
+
+        <!-- Upload de Documentos -->
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <mat-icon>cloud_upload</mat-icon>
+              Documentos Digitais
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="form-section">
+            <div class="upload-section">
+              <h4>Comprovante de Vacinação COVID</h4>
+              <div class="upload-area" (dragover)="onDragOver($event)" (drop)="onDropVacina($event)">
+                <input #fileInputVacina type="file" accept="image/*,.pdf" style="display: none" (change)="onVacinaSelected($event)">
+                <div class="upload-content" (click)="fileInputVacina.click()">
+                  <mat-icon>cloud_upload</mat-icon>
+                  <p>Clique aqui ou arraste o arquivo</p>
+                  <small>Formatos aceitos: JPG, PNG, PDF (máx. 5MB)</small>
+                </div>
+              </div>
+              <div *ngIf="vacinaFile" class="file-preview">
+                <mat-icon>check_circle</mat-icon>
+                <span>{{ vacinaFile.name }}</span>
+                <button type="button" mat-icon-button color="warn" (click)="removeVacinaFile()">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <div class="upload-section">
+              <h4>Fotos</h4>
+              <div class="upload-area" (dragover)="onDragOver($event)" (drop)="onDropFotos($event)">
+                <input #fileInputFotos type="file" accept="image/*" multiple style="display: none" (change)="onFotosSelected($event)">
+                <div class="upload-content" (click)="fileInputFotos.click()">
+                  <mat-icon>add_a_photo</mat-icon>
+                  <p>Clique aqui ou arraste as fotos</p>
+                  <small>Formatos aceitos: JPG, PNG (máx. 5MB cada)</small>
+                </div>
+              </div>
+              <div *ngIf="fotosFiles.length > 0" class="files-preview">
+                <div *ngFor="let foto of fotosFiles; let i = index" class="file-preview">
+                  <mat-icon>image</mat-icon>
+                  <span>{{ foto.name }}</span>
+                  <button type="button" mat-icon-button color="warn" (click)="removeFotoFile(i)">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-expansion-panel>
       </form>
     </mat-card-content>
 
     <mat-card-actions align="end">
-      <button type="button" mat-stroked-button (click)="onCancel()">
+      <button type="button" mat-stroked-button color="warn" (click)="onCancel()">
+        <mat-icon>cancel</mat-icon>
         Cancelar
       </button>
 
       <button type="button" mat-raised-button color="primary"
-              [disabled]="cadastroForm.invalid"
+              [disabled]="cadastroForm.invalid || isSubmitting"
               (click)="onSubmit()">
-        {{ isEdicao ? 'Atualizar' : 'Cadastrar' }}
+        <mat-icon>{{ isSubmitting ? 'hourglass_empty' : 'save' }}</mat-icon>
+        {{ isSubmitting ? 'Salvando...' : (isEdicao ? 'Atualizar' : 'Cadastrar') }}
       </button>
     </mat-card-actions>
   </mat-card>

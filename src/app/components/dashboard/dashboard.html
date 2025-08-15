@@ -57,19 +57,7 @@
       </mat-card-content>
     </mat-card>
 
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <div class="stat-icon pending">
-            <mat-icon>hourglass_empty</mat-icon>
-          </div>
-          <div class="stat-info">
-            <h3>{{ estatisticas.pessoasPendentes }}</h3>
-            <p>Pendentes</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
+
 
     <mat-card class="stat-card">
       <mat-card-content>
@@ -100,12 +88,31 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Filtrar por Status</mat-label>
+          <mat-label>Status</mat-label>
           <mat-select [(ngModel)]="filtroStatus" (selectionChange)="aplicarFiltros()">
             <mat-option value="">Todos</mat-option>
             <mat-option value="Ativo">Ativos</mat-option>
             <mat-option value="Inativo">Inativos</mat-option>
-            <mat-option value="Pendente">Pendentes</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Bairro</mat-label>
+          <mat-select [(ngModel)]="filtroBairro" (selectionChange)="aplicarFiltros()">
+            <mat-option value="">Todos os bairros</mat-option>
+            <mat-option *ngFor="let bairro of bairrosDisponiveis" [value]="bairro">
+              {{ bairro }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Cidade</mat-label>
+          <mat-select [(ngModel)]="filtroCidade" (selectionChange)="aplicarFiltros()">
+            <mat-option value="">Todas as cidades</mat-option>
+            <mat-option *ngFor="let cidade of cidadesDisponiveis" [value]="cidade">
+              {{ cidade }}
+            </mat-option>
           </mat-select>
         </mat-form-field>
 
@@ -168,8 +175,16 @@
                 {{ formatarTelefone(pessoa.telefone) }}
               </span>
               <span class="detail-item">
+                <mat-icon>location_on</mat-icon>
+                {{ pessoa.bairro }}, {{ pessoa.cidade }}
+              </span>
+              <span class="detail-item">
                 <mat-icon>calendar_today</mat-icon>
                 Cadastrado em {{ formatarData(pessoa.criadoEm) }}
+              </span>
+              <span class="detail-item" *ngIf="pessoa.status === 'Inativo' && pessoa.motivoInativacao">
+                <mat-icon>info</mat-icon>
+                Motivo: {{ pessoa.motivoInativacao }}
               </span>
             </div>
           </div>
@@ -206,23 +221,23 @@
               <mat-icon>more_vert</mat-icon>
             </button>
 
-            <mat-menu #menuAcoes="matMenu">
-              <button mat-menu-item (click)="alterarStatus(pessoa, 'Ativo')"
+                        <mat-menu #menuAcoes="matMenu">
+              <button mat-menu-item (click)="ativarPessoa(pessoa)"
                       *ngIf="pessoa.status !== 'Ativo'">
                 <mat-icon>check_circle</mat-icon>
                 <span>Ativar</span>
               </button>
 
-              <button mat-menu-item (click)="alterarStatus(pessoa, 'Inativo')"
+              <button mat-menu-item (click)="inativarPessoa(pessoa)"
                       *ngIf="pessoa.status !== 'Inativo'">
                 <mat-icon>block</mat-icon>
                 <span>Inativar</span>
               </button>
 
-              <button mat-menu-item (click)="alterarStatus(pessoa, 'Pendente')"
-                      *ngIf="pessoa.status !== 'Pendente'">
-                <mat-icon>hourglass_empty</mat-icon>
-                <span>Marcar como Pendente</span>
+              <button mat-menu-item (click)="verMotivoInativacao(pessoa)"
+                      *ngIf="pessoa.status === 'Inativo' && pessoa.motivoInativacao">
+                <mat-icon>info</mat-icon>
+                <span>Ver Motivo</span>
               </button>
 
               <mat-divider></mat-divider>

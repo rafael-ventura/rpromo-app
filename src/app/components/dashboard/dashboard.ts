@@ -20,12 +20,12 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { Pessoa } from '../../models/pessoa.model';
 import { PessoaService } from '../../services/pessoa.service';
 import { PdfService } from '../../services/pdf.service';
+import { InativarDialogComponent } from '../inativar-dialog/inativar-dialog.component';
 
 interface Estatisticas {
   totalPessoas: number;
   pessoasAtivas: number;
   pessoasInativas: number;
-  pessoasPendentes: number;
 }
 
 @Component({
@@ -57,12 +57,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   termoBusca = '';
   filtroStatus = '';
+  filtroBairro = '';
+  filtroCidade = '';
+
+  bairrosDisponiveis: string[] = [];
+  cidadesDisponiveis: string[] = [];
 
   estatisticas: Estatisticas = {
     totalPessoas: 0,
     pessoasAtivas: 0,
-    pessoasInativas: 0,
-    pessoasPendentes: 0
+    pessoasInativas: 0
   };
 
   private destroy$ = new Subject<void>();
@@ -94,7 +98,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private carregarDados() {
+    private carregarDados() {
     this.carregando = true;
 
     this.pessoaService.getPessoas()
@@ -104,6 +108,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.pessoas = pessoas;
           this.pessoasFiltradas = [...pessoas];
           this.calcularEstatisticas();
+          this.carregarFiltros();
           this.carregando = false;
         },
         error: (error) => {
@@ -117,12 +122,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
       });
   }
 
+  private carregarFiltros() {
+    // Carregar bairros únicos
+    this.pessoaService.getBairros()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(bairros => {
+        this.bairrosDisponiveis = bairros;
+      });
+
+    // Carregar cidades únicas
+    this.pessoaService.getCidades()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(cidades => {
+        this.cidadesDisponiveis = cidades;
+      });
+  }
+
   private calcularEstatisticas() {
     this.estatisticas = {
       totalPessoas: this.pessoas.length,
       pessoasAtivas: this.pessoas.filter(p => p.status === 'Ativo').length,
-      pessoasInativas: this.pessoas.filter(p => p.status === 'Inativo').length,
-      pessoasPendentes: this.pessoas.filter(p => p.status === 'Pendente').length
+      pessoasInativas: this.pessoas.filter(p => p.status === 'Inativo').length
     };
   }
 
@@ -145,26 +165,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
       });
   }
 
-  aplicarFiltros() {
-    let resultado = [...this.pessoas];
-
-    // Aplicar filtro de busca se houver termo
-    if (this.termoBusca.trim()) {
-      const termoLower = this.termoBusca.toLowerCase();
-      resultado = resultado.filter(pessoa =>
-        pessoa.nomeCompleto.toLowerCase().includes(termoLower) ||
-        pessoa.cpf.includes(this.termoBusca) ||
-        pessoa.email.toLowerCase().includes(termoLower) ||
-        pessoa.telefone.includes(this.termoBusca)
-      );
-    }
-
-    // Aplicar filtro de status
-    if (this.filtroStatus) {
-      resultado = resultado.filter(pessoa => pessoa.status === this.filtroStatus);
-    }
-
-    this.pessoasFiltradas = resultado;
+    aplicarFiltros() {
+    this.pessoaService.buscarComFiltros({
+      termo: this.termoBusca,
+      status: this.filtroStatus as 'Ativo' | 'Inativo' | '',
+      bairro: this.filtroBairro,
+      cidade: this.filtroCidade
+    }).pipe(takeUntil(this.destroy$))
+    .subscribe(resultado => {
+      this.pessoasFiltradas = resultado;
+    });
   }
 
   private aplicarFiltroStatus() {
@@ -178,38 +188,94 @@ export class DashboardComponent implements OnInit, OnDestroy {
   limparFiltros() {
     this.termoBusca = '';
     this.filtroStatus = '';
+    this.filtroBairro = '';
+    this.filtroCidade = '';
     this.pessoasFiltradas = [...this.pessoas];
   }
 
-  // Ações das pessoas
-  alterarStatus(pessoa: Pessoa, novoStatus: 'Ativo' | 'Inativo' | 'Pendente') {
-    this.pessoaService.alterarStatus(pessoa.id!, novoStatus)
+    // Ações das pessoas
+  ativarPessoa(pessoa: Pessoa) {
+    this.pessoaService.alterarStatus(pessoa.id!, 'Ativo')
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (sucesso) => {
           if (sucesso) {
             const index = this.pessoas.findIndex(p => p.id === pessoa.id);
             if (index !== -1) {
-              this.pessoas[index].status = novoStatus;
+              this.pessoas[index].status = 'Ativo';
+              this.pessoas[index].motivoInativacao = undefined;
               this.aplicarFiltros();
               this.calcularEstatisticas();
             }
 
             this.snackBar.open(
-              `Status alterado para ${novoStatus}`,
+              `${pessoa.nomeCompleto} foi reativado(a)`,
               'Fechar',
               { duration: 3000, panelClass: ['success-snackbar'] }
             );
           }
         },
         error: (error) => {
-          console.error('Erro ao alterar status:', error);
-          this.snackBar.open('Erro ao alterar status', 'Fechar', {
+          console.error('Erro ao ativar pessoa:', error);
+          this.snackBar.open('Erro ao ativar pessoa', 'Fechar', {
             duration: 5000,
             panelClass: ['error-snackbar']
           });
         }
       });
+  }
+
+  inativarPessoa(pessoa: Pessoa) {
+    const dialogRef = this.dialog.open(InativarDialogComponent, {
+      width: '500px',
+      data: { nomeCompleto: pessoa.nomeCompleto }
+    });
+
+    dialogRef.afterClosed().subscribe(motivo => {
+      if (motivo) {
+        this.pessoaService.alterarStatus(pessoa.id!, 'Inativo', motivo)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (sucesso) => {
+              if (sucesso) {
+                const index = this.pessoas.findIndex(p => p.id === pessoa.id);
+                if (index !== -1) {
+                  this.pessoas[index].status = 'Inativo';
+                  this.pessoas[index].motivoInativacao = motivo;
+                  this.aplicarFiltros();
+                  this.calcularEstatisticas();
+                }
+
+                this.snackBar.open(
+                  `${pessoa.nomeCompleto} foi inativado(a)`,
+                  'Fechar',
+                  { duration: 3000, panelClass: ['success-snackbar'] }
+                );
+              }
+            },
+            error: (error) => {
+              console.error('Erro ao inativar pessoa:', error);
+              this.snackBar.open('Erro ao inativar pessoa', 'Fechar', {
+                duration: 5000,
+                panelClass: ['error-snackbar']
+              });
+            }
+          });
+      }
+    });
+  }
+
+  verMotivoInativacao(pessoa: Pessoa) {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        titulo: 'Motivo da Inativação',
+        mensagem: `Pessoa: ${pessoa.nomeCompleto}\n\nMotivo: ${pessoa.motivoInativacao}`,
+        textoBotaoConfirmar: 'Fechar',
+        corBotaoConfirmar: 'primary',
+        ocultarCancelar: true
+      }
+    });
   }
 
   confirmarExclusao(pessoa: Pessoa) {
