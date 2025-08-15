@@ -1,0 +1,240 @@
+<div class="dashboard-container">
+  <!-- Header do Dashboard -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1>
+        <mat-icon>dashboard</mat-icon>
+        Dashboard - Fichas Cadastrais
+      </h1>
+      <p>Gerencie todas as fichas cadastrais do sistema</p>
+    </div>
+
+    <div class="header-actions">
+      <button mat-raised-button color="primary" routerLink="/cadastro">
+        <mat-icon>person_add</mat-icon>
+        Nova Ficha
+      </button>
+
+      <button mat-stroked-button (click)="exportarDados()">
+        <mat-icon>file_download</mat-icon>
+        Exportar
+      </button>
+
+      <button mat-stroked-button (click)="gerarRelatorio()">
+        <mat-icon>picture_as_pdf</mat-icon>
+        Relatório PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- Estatísticas -->
+  <div class="stats-cards">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon active">
+            <mat-icon>people</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3>{{ estatisticas.totalPessoas }}</h3>
+            <p>Total de Pessoas</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon active">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3>{{ estatisticas.pessoasAtivas }}</h3>
+            <p>Cadastros Ativos</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon pending">
+            <mat-icon>hourglass_empty</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3>{{ estatisticas.pessoasPendentes }}</h3>
+            <p>Pendentes</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-icon inactive">
+            <mat-icon>block</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3>{{ estatisticas.pessoasInativas }}</h3>
+            <p>Inativos</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Filtros e Busca -->
+  <mat-card class="filters-card">
+    <mat-card-content>
+      <div class="filters-container">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Buscar pessoas</mat-label>
+          <input matInput
+                 [(ngModel)]="termoBusca"
+                 (ngModelChange)="buscarPessoas()"
+                 placeholder="Nome, CPF, email ou telefone">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Filtrar por Status</mat-label>
+          <mat-select [(ngModel)]="filtroStatus" (selectionChange)="aplicarFiltros()">
+            <mat-option value="">Todos</mat-option>
+            <mat-option value="Ativo">Ativos</mat-option>
+            <mat-option value="Inativo">Inativos</mat-option>
+            <mat-option value="Pendente">Pendentes</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-icon-button (click)="limparFiltros()" matTooltip="Limpar filtros">
+          <mat-icon>clear</mat-icon>
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Lista de Pessoas -->
+  <mat-card class="pessoas-card">
+    <mat-card-header>
+      <mat-card-title>
+        Pessoas Cadastradas
+        <span class="result-count">({{ pessoasFiltradas.length }} resultados)</span>
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="carregando" class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>Carregando dados...</p>
+      </div>
+
+      <div *ngIf="!carregando && pessoasFiltradas.length === 0" class="empty-state">
+        <mat-icon>person_off</mat-icon>
+        <h3>Nenhuma pessoa encontrada</h3>
+        <p *ngIf="termoBusca || filtroStatus">
+          Tente ajustar os filtros ou criar um novo cadastro.
+        </p>
+        <p *ngIf="!termoBusca && !filtroStatus">
+          Comece criando sua primeira ficha cadastral.
+        </p>
+        <button mat-raised-button color="primary" routerLink="/cadastro">
+          <mat-icon>person_add</mat-icon>
+          Criar Primeira Ficha
+        </button>
+      </div>
+
+      <div *ngIf="!carregando && pessoasFiltradas.length > 0" class="pessoas-list">
+        <div *ngFor="let pessoa of pessoasFiltradas" class="pessoa-item">
+          <div class="pessoa-avatar">
+            <mat-icon>person</mat-icon>
+          </div>
+
+          <div class="pessoa-info">
+            <h4>{{ pessoa.nomeCompleto }}</h4>
+            <div class="pessoa-details">
+              <span class="detail-item">
+                <mat-icon>badge</mat-icon>
+                {{ formatarCpf(pessoa.cpf) }}
+              </span>
+              <span class="detail-item">
+                <mat-icon>email</mat-icon>
+                {{ pessoa.email }}
+              </span>
+              <span class="detail-item">
+                <mat-icon>phone</mat-icon>
+                {{ formatarTelefone(pessoa.telefone) }}
+              </span>
+              <span class="detail-item">
+                <mat-icon>calendar_today</mat-icon>
+                Cadastrado em {{ formatarData(pessoa.criadoEm) }}
+              </span>
+            </div>
+          </div>
+
+          <div class="pessoa-status">
+                        <mat-chip
+              [ngClass]="'status-' + pessoa.status.toLowerCase()">
+              {{ pessoa.status }}
+            </mat-chip>
+          </div>
+
+          <div class="pessoa-actions">
+            <button mat-icon-button
+                    [routerLink]="['/visualizar', pessoa.id]"
+                    matTooltip="Visualizar">
+              <mat-icon>visibility</mat-icon>
+            </button>
+
+            <button mat-icon-button
+                    [routerLink]="['/editar', pessoa.id]"
+                    matTooltip="Editar">
+              <mat-icon>edit</mat-icon>
+            </button>
+
+            <button mat-icon-button
+                    (click)="gerarPdfPessoa(pessoa)"
+                    matTooltip="Gerar PDF">
+              <mat-icon>picture_as_pdf</mat-icon>
+            </button>
+
+            <button mat-icon-button
+                    [matMenuTriggerFor]="menuAcoes"
+                    matTooltip="Mais ações">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+
+            <mat-menu #menuAcoes="matMenu">
+              <button mat-menu-item (click)="alterarStatus(pessoa, 'Ativo')"
+                      *ngIf="pessoa.status !== 'Ativo'">
+                <mat-icon>check_circle</mat-icon>
+                <span>Ativar</span>
+              </button>
+
+              <button mat-menu-item (click)="alterarStatus(pessoa, 'Inativo')"
+                      *ngIf="pessoa.status !== 'Inativo'">
+                <mat-icon>block</mat-icon>
+                <span>Inativar</span>
+              </button>
+
+              <button mat-menu-item (click)="alterarStatus(pessoa, 'Pendente')"
+                      *ngIf="pessoa.status !== 'Pendente'">
+                <mat-icon>hourglass_empty</mat-icon>
+                <span>Marcar como Pendente</span>
+              </button>
+
+              <mat-divider></mat-divider>
+
+              <button mat-menu-item (click)="confirmarExclusao(pessoa)" class="delete-action">
+                <mat-icon>delete</mat-icon>
+                <span>Excluir</span>
+              </button>
+            </mat-menu>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

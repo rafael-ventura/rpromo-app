@@ -1,0 +1,54 @@
+<div class="cadastro-container">
+  <mat-card class="cadastro-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>person_add</mat-icon>
+        {{ isEdicao ? 'Editar Cadastro' : 'Nova Ficha Cadastral' }}
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="cadastroForm" (ngSubmit)="onSubmit()">
+
+        <!-- Dados Pessoais -->
+        <mat-expansion-panel [expanded]="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>Dados Pessoais</mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div formGroupName="dadosPessoais" class="form-section">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Nome Completo *</mat-label>
+              <input matInput formControlName="nomeCompleto" required>
+            </mat-form-field>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>CPF *</mat-label>
+                <input matInput formControlName="cpf" required>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>E-mail *</mat-label>
+                <input matInput type="email" formControlName="email" required>
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-expansion-panel>
+
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <button type="button" mat-stroked-button (click)="onCancel()">
+        Cancelar
+      </button>
+
+      <button type="button" mat-raised-button color="primary"
+              [disabled]="cadastroForm.invalid"
+              (click)="onSubmit()">
+        {{ isEdicao ? 'Atualizar' : 'Cadastrar' }}
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
