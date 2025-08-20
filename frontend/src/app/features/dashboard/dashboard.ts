@@ -380,7 +380,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     const telefone = this.limparTelefone(pessoa.telefone);
-    const mensagem = `Olá ${pessoa.nomeCompleto.split(' ')[0]}, aqui é da *RPromo*! 
+    const mensagem = `Olá ${pessoa.nomeCompleto.split(' ')[0]}, aqui é da *RPromo*!
 
 Entramos em contato para falar sobre uma oportunidade de trabalho que pode ser do seu interesse.
 
