@@ -274,13 +274,13 @@
 
         &.whatsapp-button {
       color: #25D366; // Cor oficial do WhatsApp
-      
+
       &:hover {
         background-color: rgba(37, 211, 102, 0.1);
         transform: scale(1.1);
         transition: all 0.2s ease;
       }
-      
+
       .whatsapp-icon {
         width: 20px;
         height: 20px;
@@ -288,11 +288,11 @@
         object-fit: contain;
         transition: transform 0.2s ease;
       }
-      
+
       &:hover .whatsapp-icon {
         transform: scale(1.1);
       }
-      
+
       mat-icon {
         font-size: 20px;
         width: 20px;

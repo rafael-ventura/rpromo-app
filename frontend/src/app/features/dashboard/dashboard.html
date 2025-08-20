@@ -222,7 +222,11 @@
                     (click)="abrirWhatsApp(pessoa)"
                     matTooltip="Enviar WhatsApp"
                     class="whatsapp-button">
-              <img src="assets/wpp-logo.webp" alt="WhatsApp" class="whatsapp-icon">
+              <img src="wpp-logo.webp" 
+                   alt="WhatsApp" 
+                   class="whatsapp-icon"
+                   (error)="$event.target.style.display='none'; $event.target.nextElementSibling.style.display='inline'">
+              <mat-icon style="display: none;">chat</mat-icon>
             </button>
 
             <button mat-icon-button
