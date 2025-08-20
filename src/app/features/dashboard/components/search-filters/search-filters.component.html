@@ -1,0 +1,53 @@
+<mat-card class="filters-card">
+  <mat-card-content>
+    <div class="filters-container">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Buscar pessoas</mat-label>
+        <input matInput
+               [value]="filters.termoBusca"
+               (input)="onTermoChange($event)"
+               placeholder="Nome, CPF, email ou telefone">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Status</mat-label>
+        <mat-select [value]="filters.filtroStatus"
+                    (selectionChange)="onStatusChange($event.value)">
+          <mat-option value="">Todos</mat-option>
+          <mat-option value="Ativo">Ativos</mat-option>
+          <mat-option value="Inativo">Inativos</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Bairro</mat-label>
+        <mat-select [value]="filters.filtroBairro"
+                    (selectionChange)="onBairroChange($event.value)">
+          <mat-option value="">Todos os bairros</mat-option>
+          <mat-option *ngFor="let bairro of bairrosDisponiveis" [value]="bairro">
+            {{ bairro }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Cidade</mat-label>
+        <mat-select [value]="filters.filtroCidade"
+                    (selectionChange)="onCidadeChange($event.value)">
+          <mat-option value="">Todas as cidades</mat-option>
+          <mat-option *ngFor="let cidade of cidadesDisponiveis" [value]="cidade">
+            {{ cidade }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-icon-button
+              (click)="onLimparFiltros()"
+              matTooltip="Limpar filtros"
+              class="clear-button">
+        <mat-icon>clear</mat-icon>
+      </button>
+    </div>
+  </mat-card-content>
+</mat-card>

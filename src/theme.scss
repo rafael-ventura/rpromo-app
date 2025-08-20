@@ -1,0 +1,68 @@
+// Tema personalizado Rpromo - Vermelho e Branco
+// Usando CSS custom properties para maior compatibilidade
+
+// Estilos customizados adicionais
+:root {
+  --rpromo-primary: #d32f2f;
+  --rpromo-primary-light: #ff5252;
+  --rpromo-primary-dark: #b71c1c;
+  --rpromo-white: #ffffff;
+  --rpromo-light-gray: #f5f5f5;
+  --rpromo-dark-gray: #424242;
+}
+
+// Classes utilitárias
+.rpromo-primary {
+  color: var(--rpromo-primary) !important;
+}
+
+.rpromo-primary-bg {
+  background-color: var(--rpromo-primary) !important;
+  color: white !important;
+}
+
+.rpromo-white-bg {
+  background-color: var(--rpromo-white) !important;
+}
+
+.rpromo-light-bg {
+  background-color: var(--rpromo-light-gray) !important;
+}
+
+// Estilo para navbar personalizada
+.rpromo-navbar {
+  background: linear-gradient(135deg, var(--rpromo-primary) 0%, var(--rpromo-primary-dark) 100%);
+  color: white;
+  box-shadow: 0 2px 10px rgba(211, 47, 47, 0.3);
+}
+
+.rpromo-card {
+  border-left: 4px solid var(--rpromo-primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.rpromo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+// Força estilos específicos para navbar
+.mat-toolbar.rpromo-navbar {
+  background: linear-gradient(135deg, var(--rpromo-primary) 0%, var(--rpromo-primary-dark) 100%) !important;
+  color: white !important;
+  box-shadow: 0 2px 10px rgba(211, 47, 47, 0.3) !important;
+}
+
+// Força estilos para botões da navbar
+.rpromo-navbar .mat-mdc-button {
+  color: rgba(255, 255, 255, 0.87) !important;
+}
+
+.rpromo-navbar .mat-mdc-button:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.rpromo-navbar .mat-mdc-icon-button {
+  color: rgba(255, 255, 255, 0.87) !important;
+}

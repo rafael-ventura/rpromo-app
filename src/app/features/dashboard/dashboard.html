@@ -14,16 +14,6 @@
         <mat-icon>person_add</mat-icon>
         Nova Ficha
       </button>
-
-      <button mat-stroked-button (click)="exportarDados()">
-        <mat-icon>file_download</mat-icon>
-        Exportar
-      </button>
-
-      <button mat-stroked-button (click)="gerarRelatorio()">
-        <mat-icon>picture_as_pdf</mat-icon>
-        Relatório PDF
-      </button>
     </div>
   </div>
 
@@ -77,6 +67,23 @@
   <!-- Filtros e Busca -->
   <mat-card class="filters-card">
     <mat-card-content>
+      <!-- Seletor de Fonte de Dados -->
+      <div class="data-source-selector" style="margin-bottom: 16px; padding: 12px; background: #f5f5f5; border-radius: 8px;">
+        <span style="margin-right: 12px; font-weight: 500;">Fonte de Dados:</span>
+        <button mat-button
+                [color]="getFonteDados() === 'supabase' ? 'primary' : ''"
+                (click)="alternarFonteDados('supabase')">
+          <mat-icon>cloud</mat-icon>
+          Supabase
+        </button>
+        <button mat-button
+                [color]="getFonteDados() === 'localStorage' ? 'primary' : ''"
+                (click)="alternarFonteDados('localStorage')">
+          <mat-icon>storage</mat-icon>
+          Local
+        </button>
+      </div>
+
       <div class="filters-container">
         <mat-form-field appearance="outline" class="search-field">
           <mat-label>Buscar pessoas</mat-label>
@@ -122,6 +129,7 @@
       </div>
     </mat-card-content>
   </mat-card>
+
 
   <!-- Lista de Pessoas -->
   <mat-card class="pessoas-card">

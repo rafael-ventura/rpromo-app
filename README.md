@@ -5,12 +5,13 @@ Um sistema moderno e robusto para gerenciamento de fichas cadastrais, desenvolvi
 ## 🚀 Características Principais
 
 ### ✨ Funcionalidades
+- **Autenticação Simples**: Sistema de login com username/senha
 - **Dashboard Interno**: Interface completa para funcionários gerenciarem cadastros
 - **Formulário Público**: Formulário externo para cadastro de pessoas
 - **Busca Avançada**: Sistema de busca por nome, CPF, email ou telefone
 - **Geração de PDF**: PDFs profissionais das fichas cadastrais
-- **Armazenamento Local**: Dados salvos no navegador (localStorage + IndexedDB)
-- **Upload de Fotos**: Sistema gratuito de armazenamento de imagens
+- **Banco de Dados**: Integração com Supabase para persistência
+- **Upload de Fotos**: Sistema de armazenamento de imagens
 - **Responsivo**: Interface adaptável para desktop, tablet e mobile
 
 ### 🎨 Interface Moderna
@@ -86,15 +87,25 @@ Um sistema moderno e robusto para gerenciamento de fichas cadastrais, desenvolvi
 2. **Instale as dependências**
    ```bash
    npm install
+   cd backend
+   npm install
+   cd ..
    ```
 
-3. **Execute o servidor de desenvolvimento**
-```bash
-ng serve
-```
+3. **Configure o banco de dados**
+   - Execute os scripts SQL em `backend/database/bd-01.sql` no seu Supabase
+   - Configure as variáveis de ambiente em `src/environments/`
 
-4. **Acesse a aplicação**
+4. **Execute o servidor de desenvolvimento**
+   ```bash
+   ng serve
+   ```
+
+5. **Acesse a aplicação**
    - Abra o navegador em `http://localhost:4200`
+   - Use as credenciais padrão:
+     - **Usuário:** `admin` / **Senha:** `admin123`
+     - **Usuário:** `teste` / **Senha:** `teste123`
 
 ### Build para Produção
 ```bash
@@ -104,21 +115,37 @@ ng build --prod
 ## 🏗 Estrutura do Projeto
 
 ```
-src/
-├── app/
-│   ├── components/
-│   │   ├── dashboard/           # Dashboard interno
-│   │   └── cadastro-pessoa/     # Formulário de cadastro
-│   ├── models/
-│   │   └── pessoa.model.ts      # Modelos de dados
-│   ├── services/
-│   │   ├── pessoa.service.ts    # Gerenciamento de pessoas
-│   │   ├── foto.service.ts      # Upload e armazenamento de fotos
-│   │   └── pdf.service.ts       # Geração de PDFs
-│   ├── app.ts                   # Componente principal
-│   ├── app.routes.ts            # Configuração de rotas
-│   └── app.config.ts            # Configuração da aplicação
-└── styles.scss                 # Estilos globais
+rpromo-angular/
+├── backend/                     # Backend utilities e scripts
+│   ├── database/               # Scripts de banco de dados
+│   │   ├── bd-01.sql          # Estrutura principal com autenticação
+│   │   └── supabase_schema.sql # Schema do Supabase
+│   ├── scripts/               # Scripts utilitários
+│   │   └── create-users.js    # Criação de usuários
+│   ├── types/                 # Definições TypeScript
+│   │   ├── usuario.types.ts   # Tipos de usuários
+│   │   └── pessoa.types.ts    # Tipos de pessoas
+│   ├── utils/                 # Utilitários backend
+│   │   └── user-creator.ts    # Criador de usuários
+│   ├── docs/                  # Documentação
+│   └── package.json           # Dependências backend
+├── src/                       # Frontend Angular
+│   ├── app/
+│   │   ├── components/
+│   │   │   └── login/         # Componente de login
+│   │   ├── features/
+│   │   │   ├── dashboard/     # Dashboard interno
+│   │   │   └── cadastro/      # Formulário de cadastro
+│   │   ├── services/
+│   │   │   ├── auth.service.ts    # Autenticação
+│   │   │   ├── pessoa.service.ts  # Gerenciamento de pessoas
+│   │   │   ├── foto.service.ts    # Upload de fotos
+│   │   │   └── pdf.service.ts     # Geração de PDFs
+│   │   ├── guards/            # Guards de rota
+│   │   ├── models/            # Modelos de dados
+│   │   └── shared/            # Componentes compartilhados
+│   └── styles.scss            # Estilos globais
+└── package.json               # Dependências frontend
 ```
 
 ## 📱 Funcionalidades Detalhadas

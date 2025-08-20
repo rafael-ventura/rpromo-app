@@ -1,5 +1,4 @@
-import { ApplicationConfig, provideZoneChangeDetection, importProvidersFrom, APP_INITIALIZER } from '@angular/core';
-import { DataConfigService } from './core/services/data-config.service';
+import { ApplicationConfig, provideZoneChangeDetection, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient } from '@angular/common/http';
@@ -31,27 +30,12 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 import { routes } from './app.routes';
 
-// Factory function para inicializar o sistema de dados
-function initializeDataConfig(dataConfigService: DataConfigService) {
-  return () => {
-    dataConfigService.loadConfig();
-  };
-}
-
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideAnimationsAsync(),
     provideHttpClient(),
-
-    // Inicialização do sistema de dados
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeDataConfig,
-      deps: [DataConfigService],
-      multi: true
-    },
 
     importProvidersFrom([
       // Material Modules

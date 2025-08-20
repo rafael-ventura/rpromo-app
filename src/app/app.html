@@ -1,40 +1,19 @@
 <div class="app-container">
-  <!-- Header da aplicação -->
-  <header class="app-header">
-    <div class="header-content">
-      <div class="logo-section">
-        <mat-icon class="app-icon">business</mat-icon>
-        <h1>RPromo</h1>
-        <span class="subtitle">Sistema de Fichas Cadastrais</span>
-      </div>
-
-      <nav class="main-nav">
-        <a mat-button routerLink="/test" routerLinkActive="active">
-          <mat-icon>bug_report</mat-icon>
-          Teste
-        </a>
-        <a mat-button routerLink="/dashboard" routerLinkActive="active">
-          <mat-icon>dashboard</mat-icon>
-          Dashboard
-        </a>
-        <a mat-button routerLink="/cadastro" routerLinkActive="active">
-          <mat-icon>person_add</mat-icon>
-          Nova Ficha
-        </a>
-      </nav>
-      </div>
-  </header>
+  <!-- Navbar personalizada -->
+  <app-navbar></app-navbar>
 
   <!-- Conteúdo principal -->
   <main class="app-content">
     <router-outlet></router-outlet>
-</main>
+  </main>
 
-  <!-- Footer -->
-  <footer class="app-footer">
-    <div class="footer-content">
-      <p>&copy; {{ currentYear }} RPromo - Sistema de Fichas Cadastrais</p>
-      <p class="footer-subtitle">Desenvolvido para facilitar o gerenciamento de cadastros</p>
-    </div>
-  </footer>
+  <!-- Footer (oculto na página de login) -->
+  @if (!isLoginPage()) {
+    <footer class="app-footer">
+      <div class="footer-content">
+        <p>&copy; {{ currentYear }} RPromo - Sistema de Fichas Cadastrais</p>
+        <p class="footer-subtitle">Desenvolvido para facilitar o gerenciamento de cadastros</p>
+      </div>
+    </footer>
+  }
 </div>

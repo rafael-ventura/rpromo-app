@@ -20,7 +20,9 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { Pessoa } from '../../models/pessoa.model';
 import { PessoaService } from '../../services/pessoa.service';
 import { PdfService } from '../../services/pdf.service';
-import { InativarDialogComponent } from '../inativar-dialog/inativar-dialog.component';
+import { InativarDialogComponent } from './components/inativar-dialog/inativar-dialog.component';
+import { DataSource } from '../../services/pessoa-data.provider';
+import { MotivoInativacaoDialogComponent } from '../../shared/components/motivo-inativacao-dialog/motivo-inativacao-dialog.component';
 
 interface Estatisticas {
   totalPessoas: number;
@@ -266,34 +268,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   verMotivoInativacao(pessoa: Pessoa) {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '400px',
+    this.dialog.open(MotivoInativacaoDialogComponent, {
+      width: '500px',
+      maxWidth: '90vw',
       data: {
-        titulo: 'Motivo da Inativação',
-        mensagem: `Pessoa: ${pessoa.nomeCompleto}\n\nMotivo: ${pessoa.motivoInativacao}`,
-        textoBotaoConfirmar: 'Fechar',
-        corBotaoConfirmar: 'primary',
-        ocultarCancelar: true
+        nomeCompleto: pessoa.nomeCompleto,
+        motivoInativacao: pessoa.motivoInativacao,
+        dataInativacao: pessoa.atualizadoEm
       }
     });
   }
 
   confirmarExclusao(pessoa: Pessoa) {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '400px',
-      data: {
-        titulo: 'Confirmar Exclusão',
-        mensagem: `Tem certeza que deseja excluir o cadastro de ${pessoa.nomeCompleto}?`,
-        textoBotaoConfirmar: 'Excluir',
-        corBotaoConfirmar: 'warn'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(resultado => {
-      if (resultado) {
-        this.excluirPessoa(pessoa);
-      }
-    });
+    const confirmacao = confirm(`Tem certeza que deseja excluir o cadastro de ${pessoa.nomeCompleto}?`);
+    if (confirmacao) {
+      this.excluirPessoa(pessoa);
+    }
   }
 
   private excluirPessoa(pessoa: Pessoa) {
@@ -348,55 +338,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       });
   }
 
-  gerarRelatorio() {
-    if (this.pessoasFiltradas.length === 0) {
-      this.snackBar.open('Nenhuma pessoa para incluir no relatório', 'Fechar', {
-        duration: 3000
-      });
-      return;
-    }
 
-    this.pdfService.gerarRelatorio(this.pessoasFiltradas)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (pdfBlob) => {
-          const nomeArquivo = `relatorio_pessoas_${this.formatarDataArquivo(new Date())}.pdf`;
-          this.pdfService.baixarPdf(pdfBlob, nomeArquivo);
-
-          this.snackBar.open(
-            'Relatório gerado com sucesso',
-            'Fechar',
-            { duration: 3000, panelClass: ['success-snackbar'] }
-          );
-        },
-        error: (error) => {
-          console.error('Erro ao gerar relatório:', error);
-          this.snackBar.open('Erro ao gerar relatório', 'Fechar', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
-        }
-      });
-  }
-
-  exportarDados() {
-    const dados = this.pessoaService.exportarDados();
-    const blob = new Blob([dados], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `backup_pessoas_${this.formatarDataArquivo(new Date())}.json`;
-    link.click();
-
-    URL.revokeObjectURL(url);
-
-    this.snackBar.open(
-      'Dados exportados com sucesso',
-      'Fechar',
-      { duration: 3000, panelClass: ['success-snackbar'] }
-    );
-  }
 
   // Utilitários de formatação
   formatarCpf(cpf: string): string {
@@ -420,46 +362,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private formatarDataArquivo(data: Date): string {
     return data.toISOString().split('T')[0].replace(/-/g, '');
   }
-}
 
-// Componente de diálogo de confirmação (será criado separadamente)
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { Inject } from '@angular/core';
+  // === FONTE DE DADOS ===
 
-@Component({
-  selector: 'app-confirm-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatButtonModule,
-    MatDialogModule
-  ],
-  template: `
-    <h2 mat-dialog-title>{{ data.titulo }}</h2>
-    <mat-dialog-content>
-      <p>{{ data.mensagem }}</p>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()">Cancelar</button>
-      <button mat-raised-button
-              [color]="data.corBotaoConfirmar || 'primary'"
-              (click)="onConfirm()">
-        {{ data.textoBotaoConfirmar || 'Confirmar' }}
-      </button>
-    </mat-dialog-actions>
-  `
-})
-export class ConfirmDialogComponent {
-  constructor(
-    public dialogRef: MatDialogRef<ConfirmDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
-  ) {}
-
-  onCancel() {
-    this.dialogRef.close(false);
+  alternarFonteDados(fonte: DataSource): void {
+    this.pessoaService.setDataSource(fonte);
+    const mensagem = fonte === 'supabase' ? 'Conectado ao Supabase' : 'Usando dados locais';
+    this.snackBar.open(mensagem, 'Fechar', {
+      duration: 3000,
+      panelClass: ['success-snackbar']
+    });
+    // Recarregar dados após mudança
+    this.carregarDados();
   }
 
-  onConfirm() {
-    this.dialogRef.close(true);
+  getFonteDados(): DataSource {
+    return this.pessoaService.getCurrentDataSource();
   }
 }
+
+

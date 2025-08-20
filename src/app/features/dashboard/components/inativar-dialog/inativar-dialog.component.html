@@ -1,0 +1,45 @@
+<h2 mat-dialog-title>Inativar Ficha</h2>
+<mat-dialog-content>
+  <p>Você está prestes a inativar a ficha de <strong>{{ data.nomeCompleto }}</strong>.</p>
+  <p>Por favor, selecione ou informe o motivo da inativação:</p>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Motivo da Inativação</mat-label>
+    <mat-select [(ngModel)]="motivoSelecionado" (selectionChange)="onMotivoChange()">
+      <mat-option value="Abandonou o trabalho">Abandonou o trabalho</mat-option>
+      <mat-option value="Comportamento inadequado">Comportamento inadequado</mat-option>
+      <mat-option value="Falta de pontualidade">Falta de pontualidade</mat-option>
+      <mat-option value="Desempenho insatisfatório">Desempenho insatisfatório</mat-option>
+      <mat-option value="Problemas de conduta">Problemas de conduta</mat-option>
+      <mat-option value="Não compareceu">Não compareceu</mat-option>
+      <mat-option value="Pediu demissão">Pediu demissão</mat-option>
+      <mat-option value="Outro">Outro (especificar)</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width" *ngIf="motivoSelecionado === 'Outro'">
+    <mat-label>Especificar motivo</mat-label>
+    <textarea matInput
+              [(ngModel)]="motivoPersonalizado"
+              placeholder="Descreva o motivo da inativação..."
+              rows="3"></textarea>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width" *ngIf="motivoSelecionado && motivoSelecionado !== 'Outro'">
+    <mat-label>Observações adicionais (opcional)</mat-label>
+    <textarea matInput
+              [(ngModel)]="observacoes"
+              placeholder="Adicione detalhes se necessário..."
+              rows="2"></textarea>
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancelar</button>
+  <button mat-raised-button
+          color="warn"
+          [disabled]="!motivoFinal"
+          (click)="onConfirm()">
+    Inativar Ficha
+  </button>
+</mat-dialog-actions>

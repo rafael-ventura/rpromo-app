@@ -1,0 +1,25 @@
+{
+  "name": "rpromo-backend",
+  "version": "1.0.0",
+  "description": "Backend utilities and scripts for RPromo system",
+  "main": "index.js",
+  "scripts": {
+    "create-users": "node scripts/create-users.js",
+    "create-user": "node scripts/create-users.js"
+  },
+  "keywords": [
+    "rpromo",
+    "backend",
+    "utilities",
+    "database"
+  ],
+  "author": "RPromo Team",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "typescript": "^5.8.2"
+  }
+}

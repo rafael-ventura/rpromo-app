@@ -1,0 +1,43 @@
+<div class="stats-cards">
+  <mat-card class="stat-card">
+    <mat-card-content>
+      <div class="stat-content">
+        <div class="stat-icon total">
+          <mat-icon>people</mat-icon>
+        </div>
+        <div class="stat-info">
+          <h3>{{ stats.totalPessoas }}</h3>
+          <p>Total de Pessoas</p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="stat-card">
+    <mat-card-content>
+      <div class="stat-content">
+        <div class="stat-icon active">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+        <div class="stat-info">
+          <h3>{{ stats.pessoasAtivas }}</h3>
+          <p>Cadastros Ativos</p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="stat-card">
+    <mat-card-content>
+      <div class="stat-content">
+        <div class="stat-icon inactive">
+          <mat-icon>cancel</mat-icon>
+        </div>
+        <div class="stat-info">
+          <h3>{{ stats.pessoasInativas }}</h3>
+          <p>Cadastros Inativos</p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

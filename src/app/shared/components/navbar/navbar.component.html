@@ -1,0 +1,84 @@
+<mat-toolbar class="rpromo-navbar">
+  <div class="navbar-container">
+    <!-- Logo e título -->
+    <div class="logo-section">
+      <div class="logo-container">
+        <img
+          src="logo-rpromo.png"
+          alt="Rpromo Logo"
+          class="logo"
+          height="40"
+          (error)="onImageError($event)"
+        >
+        @if (logoError) {
+          <div class="logo-fallback">
+            <mat-icon>business</mat-icon>
+          </div>
+        }
+      </div>
+      <span class="app-title">Painel Interativo Rpromo</span>
+    </div>
+
+    <!-- Navegação -->
+    <div class="nav-links">
+      <button
+        mat-button
+        routerLink="/dashboard"
+        routerLinkActive="active-link"
+        class="nav-button"
+      >
+        <mat-icon>dashboard</mat-icon>
+        Painel
+      </button>
+
+      <button
+        mat-button
+        routerLink="/cadastro"
+        routerLinkActive="active-link"
+        class="nav-button"
+      >
+        <mat-icon>person_add</mat-icon>
+        Cadastro de Fichas
+      </button>
+    </div>
+
+    <!-- Menu de opções -->
+    <div class="menu-section">
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="menu"
+        class="menu-button"
+      >
+        <mat-icon>more_vert</mat-icon>
+      </button>
+
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item routerLink="/cadastro">
+          <mat-icon>person_add</mat-icon>
+          <span>Nova Ficha</span>
+        </button>
+
+        @if (authService.isLoggedIn) {
+          <button mat-menu-item routerLink="/dashboard">
+            <mat-icon>dashboard</mat-icon>
+            <span>Dashboard</span>
+          </button>
+
+          <mat-divider></mat-divider>
+
+          <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>Sair</span>
+          </button>
+        } @else {
+          <mat-divider></mat-divider>
+
+          <button mat-menu-item routerLink="/login">
+            <mat-icon>login</mat-icon>
+            <span>Login Admin</span>
+          </button>
+        }
+      </mat-menu>
+    </div>
+  </div>
+</mat-toolbar>

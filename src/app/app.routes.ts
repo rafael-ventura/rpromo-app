@@ -1,14 +1,27 @@
 import { Routes } from '@angular/router';
-import { TestComponent } from './components/test/test.component';
-import { DashboardContainerComponent } from './features/dashboard/dashboard-container.component';
-import { CadastroPessoaComponent } from './components/cadastro-pessoa/cadastro-pessoa';
+import { DashboardComponent } from './features/dashboard/dashboard';
+import { CadastroPessoaComponent } from './features/cadastro/cadastro-pessoa';
+import { LoginComponent } from './components/login/login.component';
+import { AdminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-  { path: 'test', component: TestComponent },
-  { path: 'dashboard', component: DashboardContainerComponent },
+  { path: '', redirectTo: '/cadastro', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent },
   { path: 'cadastro', component: CadastroPessoaComponent },
-  { path: 'editar/:id', component: CadastroPessoaComponent },
-  { path: 'visualizar/:id', component: CadastroPessoaComponent },
-  { path: '**', redirectTo: '/dashboard' }
+  {
+    path: 'dashboard',
+    component: DashboardComponent,
+    canActivate: [AdminGuard]
+  },
+  {
+    path: 'editar/:id',
+    component: CadastroPessoaComponent,
+    canActivate: [AdminGuard]
+  },
+  {
+    path: 'visualizar/:id',
+    component: CadastroPessoaComponent,
+    canActivate: [AdminGuard]
+  },
+  { path: '**', redirectTo: '/cadastro' }
 ];

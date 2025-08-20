@@ -1,0 +1,99 @@
+<div class="pessoa-item">
+  <div class="pessoa-avatar">
+    <mat-icon>person</mat-icon>
+  </div>
+
+  <div class="pessoa-info">
+    <h4>{{ pessoa.nomeCompleto }}</h4>
+    <div class="pessoa-details">
+      <span class="detail-item">
+        <mat-icon>badge</mat-icon>
+        {{ formatarCpf(pessoa.cpf) }}
+      </span>
+      <span class="detail-item">
+        <mat-icon>email</mat-icon>
+        {{ pessoa.email }}
+      </span>
+      <span class="detail-item">
+        <mat-icon>phone</mat-icon>
+        {{ formatarTelefone(pessoa.telefone) }}
+      </span>
+      <span class="detail-item">
+        <mat-icon>location_on</mat-icon>
+        {{ pessoa.bairro }}, {{ pessoa.cidade }}
+      </span>
+      <span class="detail-item">
+        <mat-icon>calendar_today</mat-icon>
+        Cadastrado em {{ formatarData(pessoa.criadoEm) }}
+      </span>
+      <span class="detail-item" *ngIf="pessoa.status === 'Inativo' && pessoa.motivoInativacao">
+        <mat-icon>info</mat-icon>
+        Motivo: {{ pessoa.motivoInativacao }}
+      </span>
+    </div>
+  </div>
+
+  <div class="pessoa-status">
+    <mat-chip [ngClass]="'status-' + pessoa.status.toLowerCase()">
+      {{ pessoa.status }}
+    </mat-chip>
+  </div>
+
+  <div class="pessoa-actions">
+    <button mat-icon-button
+            (click)="actions.visualizar(pessoa)"
+            matTooltip="Visualizar">
+      <mat-icon>visibility</mat-icon>
+    </button>
+
+    <button mat-icon-button
+            (click)="actions.editar(pessoa)"
+            matTooltip="Editar">
+      <mat-icon>edit</mat-icon>
+    </button>
+
+    <button mat-icon-button
+            (click)="actions.gerarPdf(pessoa)"
+            matTooltip="Gerar PDF">
+      <mat-icon>picture_as_pdf</mat-icon>
+    </button>
+
+    <button mat-icon-button
+            [matMenuTriggerFor]="menuAcoes"
+            matTooltip="Mais ações">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+
+    <mat-menu #menuAcoes="matMenu">
+      <button mat-menu-item
+              (click)="actions.ativar(pessoa)"
+              *ngIf="pessoa.status !== 'Ativo'">
+        <mat-icon>check_circle</mat-icon>
+        <span>Ativar</span>
+      </button>
+
+      <button mat-menu-item
+              (click)="actions.inativar(pessoa)"
+              *ngIf="pessoa.status !== 'Inativo'">
+        <mat-icon>block</mat-icon>
+        <span>Inativar</span>
+      </button>
+
+      <button mat-menu-item
+              (click)="actions.verMotivo(pessoa)"
+              *ngIf="pessoa.status === 'Inativo' && pessoa.motivoInativacao">
+        <mat-icon>info</mat-icon>
+        <span>Ver Motivo</span>
+      </button>
+
+      <mat-divider></mat-divider>
+
+      <button mat-menu-item
+              (click)="actions.excluir(pessoa)"
+              class="delete-action">
+        <mat-icon>delete</mat-icon>
+        <span>Excluir</span>
+      </button>
+    </mat-menu>
+  </div>
+</div>

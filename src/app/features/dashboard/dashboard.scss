@@ -4,52 +4,7 @@
   padding: 20px;
 }
 
-// Header do Dashboard
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 32px;
-  padding: 24px;
-  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
-  border-radius: 12px;
-  color: white;
-  box-shadow: 0 4px 20px rgba(25, 118, 210, 0.3);
-
-  .header-content {
-    h1 {
-      margin: 0 0 8px 0;
-      font-size: 28px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-
-      mat-icon {
-        font-size: 32px;
-        width: 32px;
-        height: 32px;
-      }
-    }
-
-    p {
-      margin: 0;
-      opacity: 0.9;
-      font-size: 16px;
-    }
-  }
-
-  .header-actions {
-    display: flex;
-    gap: 12px;
-
-    button {
-      mat-icon {
-        margin-right: 8px;
-      }
-    }
-  }
-}
+// Header do Dashboard removido - integrado na navbar
 
 // Cards de Estatísticas
 .stats-cards {
@@ -102,7 +57,7 @@
   }
 
   &.inactive {
-    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+    background: linear-gradient(135deg, var(--rpromo-primary-light) 0%, var(--rpromo-primary) 100%);
   }
 }
 
@@ -130,6 +85,8 @@
     padding: 20px;
   }
 }
+
+// Ações do Dashboard removidas
 
 .filters-container {
   display: flex;
@@ -233,7 +190,7 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -241,7 +198,7 @@
   flex-shrink: 0;
 
   mat-icon {
-    color: #1976d2;
+    color: var(--rpromo-primary);
     font-size: 28px;
     width: 28px;
     height: 28px;
@@ -295,7 +252,7 @@
 
     &.status-inativo {
       background-color: #ffebee;
-      color: #c62828;
+      color: var(--rpromo-primary);
     }
 
     &.status-pendente {
@@ -319,10 +276,10 @@
 
 // Menu de ações
 .delete-action {
-  color: #f44336 !important;
+  color: var(--rpromo-primary) !important;
 
   mat-icon {
-    color: #f44336 !important;
+    color: var(--rpromo-primary) !important;
   }
 }
 
@@ -332,15 +289,7 @@
     padding: 10px;
   }
 
-  .dashboard-header {
-    flex-direction: column;
-    gap: 20px;
-    text-align: center;
-
-    .header-actions {
-      justify-content: center;
-    }
-  }
+  // Dashboard header removido
 
   .stats-cards {
     grid-template-columns: 1fr;
@@ -354,6 +303,10 @@
       width: 100%;
       min-width: unset;
     }
+  }
+
+  .actions-cards {
+    gap: 16px;
   }
 
   .pessoa-item {
@@ -385,12 +338,32 @@
 }
 
 @media (max-width: 480px) {
-  .header-actions {
-    flex-direction: column;
-    width: 100%;
+  // Dashboard header removido
 
-    button {
-      width: 100%;
+  .actions-cards {
+    gap: 12px;
+
+    .action-card .stat-card mat-card-content {
+      padding: 20px 16px;
+    }
+
+    .action-card .stat-info h3 {
+      font-size: 16px;
+    }
+
+    .action-card .stat-info p {
+      font-size: 13px;
+    }
+
+    .action-card .stat-icon {
+      width: 50px;
+      height: 50px;
+
+      mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
     }
   }
 
@@ -424,6 +397,6 @@
 }
 
 .error-snackbar {
-  background-color: #f44336 !important;
+  background-color: var(--rpromo-primary) !important;
   color: white !important;
 }

@@ -1,113 +1,87 @@
-import { Injectable, inject } from '@angular/core';
-import { Observable, combineLatest, BehaviorSubject, Subject } from 'rxjs';
-import { map, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { Observable, BehaviorSubject } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { Pessoa } from '../../../models/pessoa.model';
-import { PessoaRepository } from '../../../core/repositories/pessoa.repository';
+import { PessoaService } from '../../../services/pessoa.service';
 import { PdfService } from '../../../services/pdf.service';
+import { Formatadores } from '../../../services/formatadores.util';
+import { DataSource } from '../../../services/pessoa-data.provider';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { InativarDialogComponent } from '../../../components/inativar-dialog/inativar-dialog.component';
-import { DashboardStats } from '../components/stats-cards/stats-cards.component';
-import { SearchFiltersData } from '../components/search-filters/search-filters.component';
+import { InativarDialogComponent } from '../components/inativar-dialog/inativar-dialog.component';
 
-/**
- * Facade Service para o Dashboard
- * Centraliza toda lógica de negócio e estado do dashboard
- * Padrão Facade + State Management
- */
+export interface FiltrosDashboard {
+  termo?: string;
+  status?: 'Ativo' | 'Inativo' | '';
+  bairro?: string;
+  cidade?: string;
+}
+
+export interface EstatisticasDashboard {
+  totalPessoas: number;
+  pessoasAtivas: number;
+  pessoasInativas: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class DashboardFacade {
-  // Injeção de dependências moderna
-  private readonly pessoaRepository = inject(PessoaRepository);
-  private readonly pdfService = inject(PdfService);
-  private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
-
-  // Estado interno
-  private readonly filtrosSubject = new BehaviorSubject<SearchFiltersData>({
-    termoBusca: '',
-    filtroStatus: '',
-    filtroBairro: '',
-    filtroCidade: ''
+  private filtrosSubject = new BehaviorSubject<FiltrosDashboard>({
+    termo: '',
+    status: '',
+    bairro: '',
+    cidade: ''
   });
 
-  private readonly buscaSubject = new Subject<string>();
-
-  // Observables públicos
-  readonly loading$ = this.pessoaRepository.loading$;
-  readonly error$ = this.pessoaRepository.error$;
-  readonly pessoas$ = this.pessoaRepository.pessoas$;
-
-  // Estado computado
-  readonly stats$ = this.pessoas$.pipe(
-    map(pessoas => this.calcularEstatisticas(pessoas))
-  );
-
-  readonly opcoesUnicas$ = this.pessoaRepository.getOpcoesUnicas();
-
-  readonly pessoasFiltradas$ = combineLatest([
-    this.pessoas$,
-    this.filtrosSubject.asObservable()
-  ]).pipe(
-    switchMap(([pessoas, filtros]) =>
-      this.pessoaRepository.buscarPessoas({
-        termo: filtros.termoBusca,
-        status: filtros.filtroStatus as any,
-        bairro: filtros.filtroBairro,
-        cidade: filtros.filtroCidade
-      })
-    )
-  );
-
+  readonly pessoas$: Observable<Pessoa[]>;
   readonly filtros$ = this.filtrosSubject.asObservable();
+  readonly pessoasFiltradas$: Observable<Pessoa[]>;
+  readonly stats$: Observable<EstatisticasDashboard>;
+  readonly estatisticas$: Observable<EstatisticasDashboard>;
+  readonly bairros$: Observable<string[]>;
+  readonly cidades$: Observable<string[]>;
+  readonly opcoesUnicas$: Observable<{ bairros: string[]; cidades: string[] }>;
+  readonly loading$ = new BehaviorSubject<boolean>(false);
 
-  constructor() {
-    this.configurarBusca();
-    this.carregarDados();
+  constructor(
+    private pessoaService: PessoaService,
+    private pdfService: PdfService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
+  ) {
+    this.pessoas$ = this.pessoaService.getPessoas();
+    this.pessoasFiltradas$ = this.filtros$.pipe(
+      switchMap(filtros => this.pessoaService.buscarComFiltros(filtros))
+    );
+    this.stats$ = this.pessoas$.pipe(
+      map(pessoas => this.calcularEstatisticas(pessoas))
+    );
+    this.estatisticas$ = this.stats$; // Alias para compatibilidade
+    this.bairros$ = this.pessoaService.getBairros();
+    this.cidades$ = this.pessoaService.getCidades();
+    this.opcoesUnicas$ = this.pessoas$.pipe(
+      map(pessoas => ({
+        bairros: [...new Set(pessoas.map(p => p.bairro).filter(Boolean))].sort(),
+        cidades: [...new Set(pessoas.map(p => p.cidade).filter(Boolean))].sort()
+      }))
+    );
   }
 
-  // ========== Métodos Públicos ==========
+  // === FILTROS ===
 
-  /**
-   * Carrega os dados iniciais
-   */
-  carregarDados(): void {
-    this.pessoaRepository.loadData().subscribe();
-  }
-
-  /**
-   * Atualiza filtros
-   */
-  atualizarFiltros(filtros: SearchFiltersData): void {
+  atualizarFiltros(filtros: FiltrosDashboard): void {
     this.filtrosSubject.next(filtros);
   }
 
-  /**
-   * Limpa todos os filtros
-   */
   limparFiltros(): void {
-    this.filtrosSubject.next({
-      termoBusca: '',
-      filtroStatus: '',
-      filtroBairro: '',
-      filtroCidade: ''
-    });
+    this.filtrosSubject.next({ termo: '', status: '', bairro: '', cidade: '' });
   }
 
-  /**
-   * Realiza busca com debounce
-   */
-  buscarPessoas(termo: string): void {
-    this.buscaSubject.next(termo);
-  }
+  // === AÇÕES ===
 
-  /**
-   * Ativa uma pessoa
-   */
   ativarPessoa(pessoa: Pessoa): Observable<boolean> {
-    return this.pessoaRepository.alterarStatus(pessoa.id!, 'Ativo').pipe(
+    return this.pessoaService.alterarStatus(pessoa.id!, 'Ativo').pipe(
       map(sucesso => {
         if (sucesso) {
           this.mostrarSucesso(`${pessoa.nomeCompleto} foi reativado(a)`);
@@ -119,9 +93,6 @@ export class DashboardFacade {
     );
   }
 
-  /**
-   * Inativa uma pessoa com motivo
-   */
   inativarPessoa(pessoa: Pessoa): Observable<boolean> {
     const dialogRef = this.dialog.open(InativarDialogComponent, {
       width: '500px',
@@ -132,7 +103,7 @@ export class DashboardFacade {
       switchMap(motivo => {
         if (!motivo) return [false];
 
-        return this.pessoaRepository.alterarStatus(pessoa.id!, 'Inativo', motivo).pipe(
+        return this.pessoaService.alterarStatus(pessoa.id!, 'Inativo', motivo).pipe(
           map(sucesso => {
             if (sucesso) {
               this.mostrarSucesso(`${pessoa.nomeCompleto} foi inativado(a)`);
@@ -146,11 +117,8 @@ export class DashboardFacade {
     );
   }
 
-  /**
-   * Remove uma pessoa
-   */
   removerPessoa(pessoa: Pessoa): Observable<boolean> {
-    return this.pessoaRepository.removerPessoa(pessoa.id!).pipe(
+    return this.pessoaService.removerPessoa(pessoa.id!).pipe(
       map(sucesso => {
         if (sucesso) {
           this.mostrarSucesso('Cadastro excluído com sucesso');
@@ -162,9 +130,6 @@ export class DashboardFacade {
     );
   }
 
-  /**
-   * Gera PDF de uma pessoa
-   */
   gerarPdfPessoa(pessoa: Pessoa): void {
     this.pdfService.gerarFichaCadastral(pessoa).subscribe({
       next: (pdfBlob) => {
@@ -172,15 +137,10 @@ export class DashboardFacade {
         this.pdfService.baixarPdf(pdfBlob, nomeArquivo);
         this.mostrarSucesso('PDF gerado com sucesso');
       },
-      error: () => {
-        this.mostrarErro('Erro ao gerar PDF');
-      }
+      error: () => this.mostrarErro('Erro ao gerar PDF')
     });
   }
 
-  /**
-   * Gera relatório de múltiplas pessoas
-   */
   gerarRelatorio(pessoas: Pessoa[]): void {
     if (pessoas.length === 0) {
       this.mostrarInfo('Nenhuma pessoa para incluir no relatório');
@@ -189,47 +149,49 @@ export class DashboardFacade {
 
     this.pdfService.gerarRelatorio(pessoas).subscribe({
       next: (pdfBlob) => {
-        const nomeArquivo = `relatorio_pessoas_${this.formatarDataArquivo(new Date())}.pdf`;
+        const nomeArquivo = `relatorio_pessoas_${Formatadores.dataArquivo(new Date())}.pdf`;
         this.pdfService.baixarPdf(pdfBlob, nomeArquivo);
         this.mostrarSucesso('Relatório gerado com sucesso');
       },
-      error: () => {
-        this.mostrarErro('Erro ao gerar relatório');
-      }
+      error: () => this.mostrarErro('Erro ao gerar relatório')
     });
   }
 
-  /**
-   * Exporta dados
-   */
   exportarDados(): void {
-    // Implementar quando tivermos o método no repository
+    const dados = this.pessoaService.exportarDados();
+    const blob = new Blob([dados], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `backup_pessoas_${Formatadores.dataArquivo(new Date())}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
     this.mostrarSucesso('Dados exportados com sucesso');
   }
 
+  // === CONFIGURAÇÃO DE DADOS ===
+
   /**
-   * Sincroniza dados
+   * Alterna entre localStorage e Supabase
    */
-  sincronizar(): void {
-    this.pessoaRepository.sincronizar().subscribe({
-      next: () => this.mostrarSucesso('Dados sincronizados'),
-      error: () => this.mostrarErro('Erro na sincronização')
-    });
+  alternarFonteDados(fonte: DataSource): void {
+    this.pessoaService.setDataSource(fonte);
+    const mensagem = fonte === 'supabase'
+      ? 'Conectado ao Supabase'
+      : 'Usando dados locais';
+    this.mostrarSucesso(mensagem);
   }
 
-  // ========== Métodos Privados ==========
-
-  private configurarBusca(): void {
-    this.buscaSubject.pipe(
-      debounceTime(300),
-      distinctUntilChanged()
-    ).subscribe(termo => {
-      const filtrosAtuais = this.filtrosSubject.value;
-      this.filtrosSubject.next({ ...filtrosAtuais, termoBusca: termo });
-    });
+  /**
+   * Obtém a fonte de dados atual
+   */
+  getFonteDadosAtual(): DataSource {
+    return this.pessoaService.getCurrentDataSource();
   }
 
-  private calcularEstatisticas(pessoas: Pessoa[]): DashboardStats {
+  // === MÉTODOS PRIVADOS ===
+
+  private calcularEstatisticas(pessoas: Pessoa[]): EstatisticasDashboard {
     return {
       totalPessoas: pessoas.length,
       pessoasAtivas: pessoas.filter(p => p.status === 'Ativo').length,
@@ -257,7 +219,5 @@ export class DashboardFacade {
     });
   }
 
-  private formatarDataArquivo(data: Date): string {
-    return data.toISOString().split('T')[0].replace(/-/g, '');
-  }
+
 }
