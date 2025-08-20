@@ -1,6 +1,6 @@
 # RPromo - Sistema de Fichas Cadastrais
 
-Um sistema moderno e robusto para gerenciamento de fichas cadastrais, desenvolvido em Angular com Material Design. Substitui o antigo sistema baseado em Google Forms, oferecendo uma solução completa e profissional.
+Sistema moderno e robusto para gerenciamento de fichas cadastrais, desenvolvido em Angular com Material Design. Substitui o antigo sistema baseado em Google Forms, oferecendo uma solução completa e profissional.
 
 ## 🚀 Características Principais
 
@@ -16,9 +16,69 @@ Um sistema moderno e robusto para gerenciamento de fichas cadastrais, desenvolvi
 
 ### 🎨 Interface Moderna
 - **Material Design**: Interface seguindo as diretrizes do Google
-- **Tema Personalizado**: Cores e estilização profissional
+- **Tema Personalizado**: Cores e estilização profissional da RPromo
 - **Animações Suaves**: Transições e feedbacks visuais
 - **UX Otimizada**: Experiência do usuário intuitiva
+
+## 🏗 Arquitetura
+
+### Frontend (Angular 18)
+- **Angular Material**: Componentes UI modernos
+- **Standalone Components**: Arquitetura moderna do Angular
+- **Reactive Forms**: Formulários reativos com validação
+- **TypeScript**: Linguagem de programação tipada
+- **SCSS**: Estilização avançada com tema personalizado
+
+### Backend (Supabase + PostgreSQL)
+- **Supabase**: Plataforma backend-as-a-service
+- **PostgreSQL**: Banco de dados robusto e confiável
+- **Row Level Security (RLS)**: Segurança granular por linha
+- **Autenticação Customizada**: Sistema próprio com bcrypt
+- **APIs RESTful**: Integração via supabase-js
+
+### Bibliotecas e Ferramentas
+- **jsPDF**: Geração de PDFs profissionais
+- **html2canvas**: Captura de elementos HTML
+- **bcryptjs**: Hash seguro de senhas
+- **RxJS**: Programação reativa
+
+## 📦 Estrutura do Projeto
+
+```
+rpromo-angular/
+├── backend/                     # Backend utilities e scripts
+│   ├── database/               # Scripts de banco de dados
+│   │   ├── bd-01.sql          # Estrutura principal com autenticação
+│   │   ├── supabase_schema.sql # Schema do Supabase
+│   │   └── fix-users.sql      # Script para corrigir usuários
+│   ├── scripts/               # Scripts utilitários
+│   │   ├── create-users.js    # Criação de usuários
+│   │   └── test-passwords.js  # Teste de senhas
+│   ├── types/                 # Definições TypeScript
+│   │   ├── usuario.types.ts   # Tipos de usuários
+│   │   └── pessoa.types.ts    # Tipos de pessoas
+│   ├── utils/                 # Utilitários backend
+│   │   └── user-creator.ts    # Criador de usuários
+│   ├── docs/                  # Documentação
+│   └── package.json           # Dependências backend
+├── src/                       # Frontend Angular
+│   ├── app/
+│   │   ├── components/
+│   │   │   └── login/         # Componente de login
+│   │   ├── features/
+│   │   │   ├── dashboard/     # Dashboard interno
+│   │   │   └── cadastro/      # Formulário de cadastro
+│   │   ├── services/
+│   │   │   ├── auth.service.ts    # Autenticação
+│   │   │   ├── pessoa.service.ts  # Gerenciamento de pessoas
+│   │   │   ├── foto.service.ts    # Upload de fotos
+│   │   │   └── pdf.service.ts     # Geração de PDFs
+│   │   ├── guards/            # Guards de rota
+│   │   ├── models/            # Modelos de dados
+│   │   └── shared/            # Componentes compartilhados
+│   └── styles.scss            # Estilos globais
+└── package.json               # Dependências frontend
+```
 
 ## 📋 Campos do Formulário
 
@@ -46,35 +106,15 @@ Um sistema moderno e robusto para gerenciamento de fichas cadastrais, desenvolvi
 - Nome e data de nascimento dos filhos
 
 ### Documentos Digitais
-- Upload de fotos
-- Comprovante de vacinação COVID
+- Upload de fotos e documentos
 
-## 🛠 Tecnologias Utilizadas
-
-### Frontend
-- **Angular 18**: Framework principal
-- **Angular Material**: Componentes UI
-- **TypeScript**: Linguagem de programação
-- **SCSS**: Estilização avançada
-- **RxJS**: Programação reativa
-
-### Bibliotecas
-- **jsPDF**: Geração de PDFs
-- **html2canvas**: Captura de elementos HTML
-- **IndexedDB**: Armazenamento local de imagens
-
-### Arquitetura
-- **Standalone Components**: Arquitetura moderna do Angular
-- **Reactive Forms**: Formulários reativos com validação
-- **Services**: Camada de serviços para lógica de negócio
-- **Observables**: Gerenciamento de estado reativo
-
-## 📦 Instalação e Execução
+## 🛠 Instalação e Configuração
 
 ### Pré-requisitos
 - Node.js (versão 18 ou superior)
 - npm ou yarn
 - Angular CLI
+- Conta no Supabase
 
 ### Passos de Instalação
 
@@ -93,15 +133,29 @@ Um sistema moderno e robusto para gerenciamento de fichas cadastrais, desenvolvi
    ```
 
 3. **Configure o banco de dados**
-   - Execute os scripts SQL em `backend/database/bd-01.sql` no seu Supabase
-   - Configure as variáveis de ambiente em `src/environments/`
+   - Crie um projeto no [Supabase](https://supabase.com)
+   - Execute o script `backend/database/bd-01.sql` no SQL Editor
+   - Para corrigir usuários existentes, execute `backend/database/fix-users.sql`
 
-4. **Execute o servidor de desenvolvimento**
+4. **Configure as variáveis de ambiente**
+   - Copie `src/environments/environment.ts` para suas configurações
+   - Adicione as credenciais do Supabase:
+   ```typescript
+   export const environment = {
+     production: false,
+     supabase: {
+       url: 'SUA_SUPABASE_URL',
+       anonKey: 'SUA_SUPABASE_ANON_KEY'
+     }
+   };
+   ```
+
+5. **Execute o servidor de desenvolvimento**
    ```bash
    ng serve
    ```
 
-5. **Acesse a aplicação**
+6. **Acesse a aplicação**
    - Abra o navegador em `http://localhost:4200`
    - Use as credenciais padrão:
      - **Usuário:** `admin` / **Senha:** `admin123`
@@ -109,44 +163,28 @@ Um sistema moderno e robusto para gerenciamento de fichas cadastrais, desenvolvi
 
 ### Build para Produção
 ```bash
-ng build --prod
+ng build --configuration production
 ```
 
-## 🏗 Estrutura do Projeto
+## 🔐 Sistema de Autenticação
 
+O sistema utiliza autenticação customizada com username/senha:
+
+### Usuários Padrão
+- **admin/admin123**: Usuário administrador principal
+- **teste/teste123**: Usuário de teste
+
+### Criar Novos Usuários
+```bash
+cd backend
+npm run create-users novouser senha123 "Nome Completo" "email@exemplo.com"
 ```
-rpromo-angular/
-├── backend/                     # Backend utilities e scripts
-│   ├── database/               # Scripts de banco de dados
-│   │   ├── bd-01.sql          # Estrutura principal com autenticação
-│   │   └── supabase_schema.sql # Schema do Supabase
-│   ├── scripts/               # Scripts utilitários
-│   │   └── create-users.js    # Criação de usuários
-│   ├── types/                 # Definições TypeScript
-│   │   ├── usuario.types.ts   # Tipos de usuários
-│   │   └── pessoa.types.ts    # Tipos de pessoas
-│   ├── utils/                 # Utilitários backend
-│   │   └── user-creator.ts    # Criador de usuários
-│   ├── docs/                  # Documentação
-│   └── package.json           # Dependências backend
-├── src/                       # Frontend Angular
-│   ├── app/
-│   │   ├── components/
-│   │   │   └── login/         # Componente de login
-│   │   ├── features/
-│   │   │   ├── dashboard/     # Dashboard interno
-│   │   │   └── cadastro/      # Formulário de cadastro
-│   │   ├── services/
-│   │   │   ├── auth.service.ts    # Autenticação
-│   │   │   ├── pessoa.service.ts  # Gerenciamento de pessoas
-│   │   │   ├── foto.service.ts    # Upload de fotos
-│   │   │   └── pdf.service.ts     # Geração de PDFs
-│   │   ├── guards/            # Guards de rota
-│   │   ├── models/            # Modelos de dados
-│   │   └── shared/            # Componentes compartilhados
-│   └── styles.scss            # Estilos globais
-└── package.json               # Dependências frontend
-```
+
+### Estrutura de Segurança
+- Senhas protegidas com hash bcrypt (salt rounds: 10)
+- Row Level Security (RLS) no Supabase
+- Sessões gerenciadas via localStorage
+- Guards de rota para proteção de páginas
 
 ## 📱 Funcionalidades Detalhadas
 
@@ -155,10 +193,10 @@ rpromo-angular/
 - **Lista de Pessoas**: Visualização completa com filtros
 - **Busca em Tempo Real**: Sistema de busca com debounce
 - **Ações por Pessoa**:
-  - Visualizar detalhes
+  - Visualizar detalhes completos
   - Editar cadastro
   - Gerar PDF individual
-  - Alterar status (Ativo/Inativo/Pendente)
+  - Alterar status (Ativo/Inativo)
   - Excluir cadastro
 - **Relatórios**: Geração de PDFs com múltiplas pessoas
 - **Exportação**: Backup dos dados em JSON
@@ -172,28 +210,30 @@ rpromo-angular/
 - **Responsivo**: Funciona perfeitamente em dispositivos móveis
 
 ### Sistema de Armazenamento
-- **localStorage**: Dados das pessoas e metadados
-- **IndexedDB**: Armazenamento otimizado de imagens
+- **Supabase Database**: Dados das pessoas e metadados
+- **Supabase Storage**: Armazenamento otimizado de imagens
 - **Compressão**: Redimensionamento automático de fotos
 - **Backup/Restore**: Sistema de exportação e importação
 
 ## 🔒 Segurança e Privacidade
 
-- **Armazenamento Local**: Dados ficam no navegador do usuário
-- **Sem Servidor**: Não requer backend ou banco de dados
-- **Validação Cliente**: Validação robusta no frontend
+- **Banco de Dados Seguro**: Dados protegidos no Supabase
+- **Autenticação Robusta**: Sistema de login com hash bcrypt
+- **RLS (Row Level Security)**: Controle granular de acesso
+- **Validação Cliente e Servidor**: Validação robusta em ambas as camadas
 - **Sanitização**: Limpeza de dados de entrada
+- **HTTPS**: Comunicação criptografada
 
 ## 🎯 Casos de Uso
 
 ### Para Empresas
-- Cadastro de funcionários
-- Processo de admissão
+- Cadastro de funcionários e colaboradores
+- Processo de admissão automatizado
 - Controle de documentação
 - Relatórios para RH
 
 ### Para Organizações
-- Cadastro de membros
+- Cadastro de membros e voluntários
 - Eventos e inscrições
 - Controle de participantes
 - Documentação oficial
@@ -207,13 +247,15 @@ rpromo-angular/
 ## 🚀 Melhorias Futuras
 
 - [ ] Integração com APIs externas (CEP, bancos)
-- [ ] Sistema de backup na nuvem
-- [ ] Notificações push
+- [ ] Sistema de backup automático na nuvem
+- [ ] Notificações push e por email
 - [ ] Relatórios avançados com gráficos
 - [ ] Sistema de templates de PDF personalizáveis
-- [ ] Integração com sistemas de e-mail
+- [ ] Integração com sistemas de e-mail marketing
 - [ ] Módulo de agendamentos
-- [ ] Sistema de permissões de usuário
+- [ ] Sistema de permissões granular
+- [ ] Sincronização offline/online
+- [ ] Dashboard analítico com métricas
 
 ## 🤝 Contribuição
 
@@ -232,7 +274,8 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 Para dúvidas ou suporte técnico:
 - Abra uma issue no repositório
 - Entre em contato com a equipe de desenvolvimento
+- Consulte a documentação no diretório `backend/docs/`
 
 ---
 
-**Desenvolvido com ❤️ para facilitar o gerenciamento de cadastros**
+**Desenvolvido com ❤️ para facilitar o gerenciamento de cadastros da RPromo**
