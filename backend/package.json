@@ -5,9 +5,7 @@
   "main": "index.js",
   "scripts": {
     "setup": "node scripts/setup-project.js",
-    "create-admin": "node scripts/setup-admin.js",
-    "create-users": "node scripts/create-users.js",
-    "test-passwords": "node scripts/test-passwords.js"
+    "create-admin": "node scripts/setup-admin.js"
   },
   "keywords": [
     "rpromo",

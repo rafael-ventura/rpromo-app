@@ -23,7 +23,7 @@ console.log('');
 
 const databaseFiles = [
   '01-extensions.sql',
-  '02-pessoas-table.sql', 
+  '02-pessoas-table.sql',
   '03-usuarios-table.sql',
   '04-triggers.sql',
   '05-rls-policies.sql',
