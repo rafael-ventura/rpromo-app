@@ -20,65 +20,109 @@ Sistema moderno e robusto para gerenciamento de fichas cadastrais, desenvolvido 
 - **Animações Suaves**: Transições e feedbacks visuais
 - **UX Otimizada**: Experiência do usuário intuitiva
 
-## 🏗 Arquitetura
-
-### Frontend (Angular 18)
-- **Angular Material**: Componentes UI modernos
-- **Standalone Components**: Arquitetura moderna do Angular
-- **Reactive Forms**: Formulários reativos com validação
-- **TypeScript**: Linguagem de programação tipada
-- **SCSS**: Estilização avançada com tema personalizado
-
-### Backend (Supabase + PostgreSQL)
-- **Supabase**: Plataforma backend-as-a-service
-- **PostgreSQL**: Banco de dados robusto e confiável
-- **Row Level Security (RLS)**: Segurança granular por linha
-- **Autenticação Customizada**: Sistema próprio com bcrypt
-- **APIs RESTful**: Integração via supabase-js
-
-### Bibliotecas e Ferramentas
-- **jsPDF**: Geração de PDFs profissionais
-- **html2canvas**: Captura de elementos HTML
-- **bcryptjs**: Hash seguro de senhas
-- **RxJS**: Programação reativa
-
-## 📦 Estrutura do Projeto
+## 🏗 Estrutura do Projeto
 
 ```
 rpromo-angular/
-├── backend/                     # Backend utilities e scripts
-│   ├── database/               # Scripts de banco de dados
-│   │   ├── bd-01.sql          # Estrutura principal com autenticação
-│   │   ├── supabase_schema.sql # Schema do Supabase
-│   │   └── fix-users.sql      # Script para corrigir usuários
-│   ├── scripts/               # Scripts utilitários
-│   │   ├── create-users.js    # Criação de usuários
-│   │   └── test-passwords.js  # Teste de senhas
-│   ├── types/                 # Definições TypeScript
-│   │   ├── usuario.types.ts   # Tipos de usuários
-│   │   └── pessoa.types.ts    # Tipos de pessoas
-│   ├── utils/                 # Utilitários backend
-│   │   └── user-creator.ts    # Criador de usuários
-│   ├── docs/                  # Documentação
-│   └── package.json           # Dependências backend
-├── src/                       # Frontend Angular
-│   ├── app/
-│   │   ├── components/
-│   │   │   └── login/         # Componente de login
-│   │   ├── features/
-│   │   │   ├── dashboard/     # Dashboard interno
-│   │   │   └── cadastro/      # Formulário de cadastro
-│   │   ├── services/
-│   │   │   ├── auth.service.ts    # Autenticação
-│   │   │   ├── pessoa.service.ts  # Gerenciamento de pessoas
-│   │   │   ├── foto.service.ts    # Upload de fotos
-│   │   │   └── pdf.service.ts     # Geração de PDFs
-│   │   ├── guards/            # Guards de rota
-│   │   ├── models/            # Modelos de dados
-│   │   └── shared/            # Componentes compartilhados
-│   └── styles.scss            # Estilos globais
-└── package.json               # Dependências frontend
+├── frontend/                   # Frontend Angular
+│   ├── src/                   # Código fonte Angular
+│   │   ├── app/
+│   │   │   ├── components/    # Componentes (login, etc)
+│   │   │   ├── features/      # Funcionalidades (dashboard, cadastro)
+│   │   │   ├── services/      # Serviços (auth, pessoa, pdf, etc)
+│   │   │   ├── guards/        # Guards de rota
+│   │   │   ├── models/        # Modelos de dados
+│   │   │   └── shared/        # Componentes compartilhados
+│   │   ├── assets/           # Recursos estáticos
+│   │   └── environments/     # Configurações de ambiente
+│   ├── public/               # Arquivos públicos
+│   ├── angular.json          # Configuração Angular
+│   ├── package.json          # Dependências frontend
+│   └── tsconfig*.json        # Configuração TypeScript
+├── backend/                   # Backend utilities e scripts
+│   ├── database/             # Scripts SQL organizados
+│   │   ├── 01-extensions.sql      # Extensões PostgreSQL
+│   │   ├── 02-pessoas-table.sql   # Tabela de pessoas
+│   │   ├── 03-usuarios-table.sql  # Tabela de usuários
+│   │   ├── 04-triggers.sql        # Triggers e funções
+│   │   ├── 05-rls-policies.sql    # Políticas de segurança
+│   │   ├── 06-sample-data.sql     # Dados de exemplo
+│   │   └── complete-setup.sql     # Script completo
+│   ├── scripts/              # Scripts utilitários
+│   │   ├── setup-project.js       # Instruções de configuração
+│   │   └── setup-admin.js         # Criação de usuário admin
+│   ├── utils/                # Utilitários backend
+│   └── package.json          # Dependências backend
+└── README.md                 # Este arquivo
 ```
+
+## 📦 Instalação e Configuração
+
+### Pré-requisitos
+- Node.js (versão 18 ou superior)
+- npm ou yarn
+- Angular CLI
+- Conta no Supabase
+
+### 🗄️ Setup do Banco de Dados
+
+1. **Crie um projeto no [Supabase](https://supabase.com)**
+
+2. **Execute os scripts SQL na ordem:**
+   ```bash
+   cd backend
+   npm run setup  # Ver instruções detalhadas
+   ```
+
+3. **Execute no Supabase SQL Editor:**
+   - `01-extensions.sql`
+   - `02-pessoas-table.sql`
+   - `03-usuarios-table.sql`
+   - `04-triggers.sql`
+   - `05-rls-policies.sql`
+   - `06-sample-data.sql` (opcional - dados de teste)
+
+   **OU execute o arquivo único:**
+   - `complete-setup.sql`
+
+### 🔐 Criar Usuário Administrador
+
+```bash
+cd backend
+npm run create-admin username senha123
+```
+
+Copie e execute o SQL gerado no Supabase.
+
+### ⚙️ Configurar Frontend
+
+1. **Instalar dependências:**
+   ```bash
+   cd frontend
+   npm install
+   ```
+
+2. **Configurar ambiente:**
+   ```typescript
+   // frontend/src/environments/environment.ts
+   export const environment = {
+     production: false,
+     supabase: {
+       url: 'https://SEU_PROJETO.supabase.co',
+       anonKey: 'SUA_SUPABASE_ANON_KEY'
+     }
+   };
+   ```
+
+3. **Executar o projeto:**
+   ```bash
+   cd frontend
+   ng serve
+   ```
+
+4. **Acessar:**
+   - Abra `http://localhost:4200`
+   - Use as credenciais criadas no passo anterior
 
 ## 📋 Campos do Formulário
 
@@ -105,157 +149,56 @@ rpromo-angular/
 - Tem filhos?, Quantidade de filhos
 - Nome e data de nascimento dos filhos
 
-### Documentos Digitais
-- Upload de fotos e documentos
+## 🛠 Tecnologias Utilizadas
 
-## 🛠 Instalação e Configuração
+### Frontend
+- **Angular 18**: Framework principal
+- **Angular Material**: Componentes UI modernos
+- **TypeScript**: Linguagem de programação tipada
+- **SCSS**: Estilização avançada
+- **RxJS**: Programação reativa
 
-### Pré-requisitos
-- Node.js (versão 18 ou superior)
-- npm ou yarn
-- Angular CLI
-- Conta no Supabase
+### Backend
+- **Supabase**: Plataforma backend-as-a-service
+- **PostgreSQL**: Banco de dados robusto
+- **Row Level Security (RLS)**: Segurança granular
+- **bcryptjs**: Hash seguro de senhas
 
-### Passos de Instalação
+### Bibliotecas
+- **jsPDF**: Geração de PDFs profissionais
+- **html2canvas**: Captura de elementos HTML
 
-1. **Clone o repositório**
-   ```bash
-   git clone <url-do-repositorio>
-   cd rpromo-angular
-   ```
+## 🔒 Segurança
 
-2. **Instale as dependências**
-   ```bash
-   npm install
-   cd backend
-   npm install
-   cd ..
-   ```
+- **Autenticação customizada** com hash bcrypt
+- **Row Level Security (RLS)** no Supabase
+- **Políticas granulares** de acesso aos dados
+- **Validações** no frontend e backend
+- **HTTPS** para comunicação segura
 
-3. **Configure o banco de dados**
-   - Crie um projeto no [Supabase](https://supabase.com)
-   - Execute o script `backend/database/bd-01.sql` no SQL Editor
-   - Para corrigir usuários existentes, execute `backend/database/fix-users.sql`
-
-4. **Configure as variáveis de ambiente**
-   - Copie `src/environments/environment.ts` para suas configurações
-   - Adicione as credenciais do Supabase:
-   ```typescript
-   export const environment = {
-     production: false,
-     supabase: {
-       url: 'SUA_SUPABASE_URL',
-       anonKey: 'SUA_SUPABASE_ANON_KEY'
-     }
-   };
-   ```
-
-5. **Execute o servidor de desenvolvimento**
-   ```bash
-   ng serve
-   ```
-
-6. **Acesse a aplicação**
-   - Abra o navegador em `http://localhost:4200`
-   - Use as credenciais padrão:
-     - **Usuário:** `admin` / **Senha:** `admin123`
-     - **Usuário:** `teste` / **Senha:** `teste123`
-
-### Build para Produção
-```bash
-ng build --configuration production
-```
-
-## 🔐 Sistema de Autenticação
-
-O sistema utiliza autenticação customizada com username/senha:
-
-### Usuários Padrão
-- **admin/admin123**: Usuário administrador principal
-- **teste/teste123**: Usuário de teste
-
-### Criar Novos Usuários
-```bash
-cd backend
-npm run create-users novouser senha123 "Nome Completo" "email@exemplo.com"
-```
-
-### Estrutura de Segurança
-- Senhas protegidas com hash bcrypt (salt rounds: 10)
-- Row Level Security (RLS) no Supabase
-- Sessões gerenciadas via localStorage
-- Guards de rota para proteção de páginas
-
-## 📱 Funcionalidades Detalhadas
+## 📱 Funcionalidades
 
 ### Dashboard (Interno - Funcionários)
-- **Estatísticas**: Visão geral dos cadastros
-- **Lista de Pessoas**: Visualização completa com filtros
-- **Busca em Tempo Real**: Sistema de busca com debounce
-- **Ações por Pessoa**:
-  - Visualizar detalhes completos
-  - Editar cadastro
-  - Gerar PDF individual
-  - Alterar status (Ativo/Inativo)
-  - Excluir cadastro
-- **Relatórios**: Geração de PDFs com múltiplas pessoas
-- **Exportação**: Backup dos dados em JSON
+- Estatísticas e visão geral dos cadastros
+- Lista completa com filtros avançados
+- Busca em tempo real
+- Geração de PDFs individuais e em lotes
+- Edição e exclusão de cadastros
+- Controle de status (Ativo/Inativo)
 
 ### Formulário de Cadastro (Externo - Público)
-- **Formulário Expansível**: Seções organizadas em abas
-- **Validação em Tempo Real**: Feedback imediato de erros
-- **Upload de Arquivos**: Drag & drop para fotos e documentos
-- **Campos Dinâmicos**: Adição/remoção de filhos conforme necessário
-- **Máscaras de Input**: Formatação automática de CPF, telefone, etc.
-- **Responsivo**: Funciona perfeitamente em dispositivos móveis
+- Interface responsiva e intuitiva
+- Validação em tempo real
+- Upload de fotos e documentos
+- Campos dinâmicos para filhos
+- Máscaras automáticas (CPF, telefone, etc.)
 
-### Sistema de Armazenamento
-- **Supabase Database**: Dados das pessoas e metadados
-- **Supabase Storage**: Armazenamento otimizado de imagens
-- **Compressão**: Redimensionamento automático de fotos
-- **Backup/Restore**: Sistema de exportação e importação
+## 🚀 Build para Produção
 
-## 🔒 Segurança e Privacidade
-
-- **Banco de Dados Seguro**: Dados protegidos no Supabase
-- **Autenticação Robusta**: Sistema de login com hash bcrypt
-- **RLS (Row Level Security)**: Controle granular de acesso
-- **Validação Cliente e Servidor**: Validação robusta em ambas as camadas
-- **Sanitização**: Limpeza de dados de entrada
-- **HTTPS**: Comunicação criptografada
-
-## 🎯 Casos de Uso
-
-### Para Empresas
-- Cadastro de funcionários e colaboradores
-- Processo de admissão automatizado
-- Controle de documentação
-- Relatórios para RH
-
-### Para Organizações
-- Cadastro de membros e voluntários
-- Eventos e inscrições
-- Controle de participantes
-- Documentação oficial
-
-### Para Consultórios
-- Ficha de pacientes
-- Documentação médica
-- Controle de consultas
-- Relatórios administrativos
-
-## 🚀 Melhorias Futuras
-
-- [ ] Integração com APIs externas (CEP, bancos)
-- [ ] Sistema de backup automático na nuvem
-- [ ] Notificações push e por email
-- [ ] Relatórios avançados com gráficos
-- [ ] Sistema de templates de PDF personalizáveis
-- [ ] Integração com sistemas de e-mail marketing
-- [ ] Módulo de agendamentos
-- [ ] Sistema de permissões granular
-- [ ] Sincronização offline/online
-- [ ] Dashboard analítico com métricas
+```bash
+cd frontend
+ng build --configuration production
+```
 
 ## 🤝 Contribuição
 
@@ -264,6 +207,23 @@ npm run create-users novouser senha123 "Nome Completo" "email@exemplo.com"
 3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
 4. Push para a branch (`git push origin feature/nova-feature`)
 5. Abra um Pull Request
+
+## 🔧 Scripts Disponíveis
+
+### Backend
+```bash
+cd backend
+npm run setup          # Instruções de configuração
+npm run create-admin    # Criar usuário administrador
+```
+
+### Frontend
+```bash
+cd frontend
+npm start              # Executar em desenvolvimento
+npm run build          # Build para produção
+npm test               # Executar testes
+```
 
 ## 📄 Licença
 
@@ -274,7 +234,6 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 Para dúvidas ou suporte técnico:
 - Abra uma issue no repositório
 - Entre em contato com a equipe de desenvolvimento
-- Consulte a documentação no diretório `backend/docs/`
 
 ---
 
