@@ -266,12 +266,13 @@ comment on column public.usuarios.username is 'Nome de usuário único para logi
 comment on column public.usuarios.senha_hash is 'Hash da senha do usuário (bcrypt)';
 
 -- Inserir usuário padrão (senha: admin123)
--- Hash bcrypt para 'admin123': $2b$10$rOZKqVJQQYQXQQXQQXQQXOeH6Qs6QQXQQXQQXQQXQXQQXQQXQXQQXu
+-- Hash bcrypt para 'admin123': $2a$10$KNd8E4X4GnOAMb1LOw1G2e1IHS3DMTbrFd7zLJX2rGnf8W5MnSS0i
 INSERT INTO public.usuarios (username, senha_hash, nome_completo, email)
-VALUES ('admin', '$2b$10$rOZKqVJQQYQXQQXQQXQQXOeH6Qs6QQXQQXQQQXQQXQXQQXQXQQXQXQu', 'Administrador', 'admin@rpromo.com.br')
+VALUES ('admin', '$2a$10$KNd8E4X4GnOAMb1LOw1G2e1IHS3DMTbrFd7zLJX2rGnf8W5MnSS0i', 'Administrador', 'admin@rpromo.com.br')
 ON CONFLICT (username) DO NOTHING;
 
 -- Inserir usuário de teste (senha: teste123)
+-- Hash bcrypt para 'teste123': $2a$10$JzoI/VFob7UZLVqz82YNou6vMUI6WcI9gGUXdeHYx85LGa2rDv9gu
 INSERT INTO public.usuarios (username, senha_hash, nome_completo, email)
-VALUES ('teste', '$2b$10$N9qo8uLOickgx2ZMRZoMye.IWe5CqjxqOLZLnPLGq2BNQFLTZKmNW', 'Usuário Teste', 'teste@rpromo.com.br')
+VALUES ('teste', '$2a$10$JzoI/VFob7UZLVqz82YNou6vMUI6WcI9gGUXdeHYx85LGa2rDv9gu', 'Usuário Teste', 'teste@rpromo.com.br')
 ON CONFLICT (username) DO NOTHING;
