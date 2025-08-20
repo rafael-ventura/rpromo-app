@@ -4,7 +4,7 @@
 
 export interface Pessoa {
   id: string;
-  
+
   // Dados Pessoais
   nome_completo: string;
   cpf: string;

@@ -11,9 +11,9 @@ function createUserSQL(username, password, nomeCompleto, email) {
   const hash = bcrypt.hashSync(password, 10);
   return `
 -- Usuário: ${username}
-INSERT INTO public.usuarios (username, senha_hash, nome_completo, email) 
+INSERT INTO public.usuarios (username, senha_hash, nome_completo, email)
 VALUES ('${username}', '${hash}', '${nomeCompleto}', '${email || ''}')
-ON CONFLICT (username) DO UPDATE SET 
+ON CONFLICT (username) DO UPDATE SET
   senha_hash = EXCLUDED.senha_hash,
   nome_completo = EXCLUDED.nome_completo,
   email = EXCLUDED.email;
