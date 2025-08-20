@@ -1,7 +1,6 @@
--- ============ EXTENSÕES ============
-create extension if not exists pgcrypto; -- para gen_random_uuid()
+-- ============ TABELA DE PESSOAS ============
+-- Tabela principal para armazenar dados das pessoas cadastradas
 
--- ============ TABELA ============
 create table if not exists public.pessoas (
   id uuid primary key default gen_random_uuid(),
 
@@ -61,7 +60,7 @@ create table if not exists public.pessoas (
   constraint email_format check (position('@' in email) > 1)
 );
 
--- ============ ÍNDICES ============
+-- ============ ÍNDICES PARA PESSOAS ============
 create index if not exists idx_pessoas_nome       on public.pessoas (nome_completo);
 create index if not exists idx_pessoas_cpf        on public.pessoas (cpf);
 create index if not exists idx_pessoas_email      on public.pessoas (email);
@@ -69,60 +68,6 @@ create index if not exists idx_pessoas_status     on public.pessoas (status);
 create index if not exists idx_pessoas_bairro     on public.pessoas (bairro);
 create index if not exists idx_pessoas_cidade     on public.pessoas (cidade);
 create index if not exists idx_pessoas_created_at on public.pessoas (created_at);
-
--- ============ TRIGGER updated_at ============
-create or replace function public.update_updated_at_column()
-returns trigger language plpgsql as $$
-begin
-  new.updated_at = now();
-  return new;
-end $$;
-
-drop trigger if exists update_pessoas_updated_at on public.pessoas;
-create trigger update_pessoas_updated_at
-before update on public.pessoas
-for each row execute function public.update_updated_at_column();
-
--- ============ RLS (segurança por linha) ============
-alter table public.pessoas enable row level security;
-
--- Remova qualquer política permissiva antiga, se existir:
-drop policy if exists "Allow all operations" on public.pessoas;
-
--- 1) FORM PÚBLICO: só INSERT liberado (anon + authenticated)
-drop policy if exists pessoas_insert_public on public.pessoas;
-create policy pessoas_insert_public
-on public.pessoas
-for insert
-to anon, authenticated
-with check (true);
-
--- 2) ADMIN (opcional): apenas admins podem SELECT/UPDATE/DELETE
-create table if not exists public.admins (
-  user_id uuid primary key,
-  created_at timestamptz default now()
-);
-
-drop policy if exists pessoas_select_admins on public.pessoas;
-create policy pessoas_select_admins
-on public.pessoas
-for select
-to authenticated
-using (exists (select 1 from public.admins a where a.user_id = auth.uid()));
-
-drop policy if exists pessoas_update_admins on public.pessoas;
-create policy pessoas_update_admins
-on public.pessoas
-for update
-to authenticated
-using (exists (select 1 from public.admins a where a.user_id = auth.uid()));
-
-drop policy if exists pessoas_delete_admins on public.pessoas;
-create policy pessoas_delete_admins
-on public.pessoas
-for delete
-to authenticated
-using (exists (select 1 from public.admins a where a.user_id = auth.uid()));
 
 -- ============ COMENTÁRIOS ============
 comment on table  public.pessoas is 'Tabela principal para armazenar dados das pessoas cadastradas no sistema RPromo';
