@@ -61,9 +61,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   filtroStatus = '';
   filtroBairro = '';
   filtroCidade = '';
+  filtroSexo = '';
 
   bairrosDisponiveis: string[] = [];
   cidadesDisponiveis: string[] = [];
+  sexosDisponiveis = ['Masculino', 'Feminino', 'Outro', 'Prefiro não informar'];
 
   estatisticas: Estatisticas = {
     totalPessoas: 0,
@@ -172,7 +174,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       termo: this.termoBusca,
       status: this.filtroStatus as 'Ativo' | 'Inativo' | '',
       bairro: this.filtroBairro,
-      cidade: this.filtroCidade
+      cidade: this.filtroCidade,
+      sexo: this.filtroSexo
     }).pipe(takeUntil(this.destroy$))
     .subscribe(resultado => {
       this.pessoasFiltradas = resultado;
@@ -192,6 +195,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.filtroStatus = '';
     this.filtroBairro = '';
     this.filtroCidade = '';
+    this.filtroSexo = '';
     this.pessoasFiltradas = [...this.pessoas];
   }
 
@@ -363,22 +367,38 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return data.toISOString().split('T')[0].replace(/-/g, '');
   }
 
-  // === FONTE DE DADOS ===
+  // === WHATSAPP ===
 
-  alternarFonteDados(fonte: DataSource): void {
-    this.pessoaService.setDataSource(fonte);
-    const mensagem = fonte === 'supabase' ? 'Conectado ao Supabase' : 'Usando dados locais';
-    this.snackBar.open(mensagem, 'Fechar', {
-      duration: 3000,
-      panelClass: ['success-snackbar']
-    });
-    // Recarregar dados após mudança
-    this.carregarDados();
+  abrirWhatsApp(pessoa: Pessoa): void {
+    if (!pessoa.telefone) {
+      this.snackBar.open(
+        'Esta pessoa não possui telefone cadastrado',
+        'Fechar',
+        { duration: 3000, panelClass: ['error-snackbar'] }
+      );
+      return;
+    }
+
+    const telefone = this.limparTelefone(pessoa.telefone);
+    const mensagem = `Olá ${pessoa.nomeCompleto.split(' ')[0]}, aqui é da *RPromo*! 
+
+Entramos em contato para falar sobre uma oportunidade de trabalho que pode ser do seu interesse.
+
+Você tem disponibilidade para conversar?
+
+Atenciosamente,
+Equipe RPromo`;
+
+    const url = `https://wa.me/55${telefone}?text=${encodeURIComponent(mensagem)}`;
+    window.open(url, '_blank');
   }
 
-  getFonteDados(): DataSource {
-    return this.pessoaService.getCurrentDataSource();
+  private limparTelefone(telefone: string): string {
+    // Remove tudo que não é número
+    return telefone.replace(/\D/g, '');
   }
+
+
 }
 
 

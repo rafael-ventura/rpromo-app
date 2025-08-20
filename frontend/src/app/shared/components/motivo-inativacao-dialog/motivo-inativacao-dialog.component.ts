@@ -73,8 +73,9 @@ export interface MotivoInativacaoData {
   `,
   styles: [`
     .dialog-container {
-      min-width: 400px;
-      max-width: 600px;
+      min-width: 500px;
+      max-width: 700px;
+      width: 90vw;
     }
 
     .dialog-header {
@@ -154,7 +155,7 @@ export interface MotivoInativacaoData {
       background: #fff3cd;
       border: 1px solid #ffeaa7;
       border-radius: 8px;
-      padding: 20px;
+      padding: 24px;
     }
 
     .motivo-header {
@@ -181,11 +182,13 @@ export interface MotivoInativacaoData {
     .motivo-content {
       color: #856404;
       font-size: 16px;
-      line-height: 1.5;
-      padding: 12px 16px;
+      line-height: 1.6;
+      padding: 16px 20px;
       background: rgba(255, 255, 255, 0.7);
-      border-radius: 6px;
+      border-radius: 8px;
       border-left: 4px solid #ffc107;
+      min-height: 80px;
+      word-wrap: break-word;
     }
 
     .dialog-actions {

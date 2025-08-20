@@ -8,6 +8,7 @@ interface FiltrosBusca {
   status?: 'Ativo' | 'Inativo' | '';
   bairro?: string;
   cidade?: string;
+  sexo?: string;
 }
 
 @Injectable({
@@ -187,7 +188,8 @@ export class PessoaService {
       return this.aplicarFiltroTermo(pessoa, filtros.termo) &&
              this.aplicarFiltroStatus(pessoa, filtros.status) &&
              this.aplicarFiltroBairro(pessoa, filtros.bairro) &&
-             this.aplicarFiltroCidade(pessoa, filtros.cidade);
+             this.aplicarFiltroCidade(pessoa, filtros.cidade) &&
+             this.aplicarFiltroSexo(pessoa, filtros.sexo);
     });
   }
 
@@ -208,6 +210,10 @@ export class PessoaService {
   private aplicarFiltroCidade(pessoa: Pessoa, cidade?: string): boolean {
     if (!cidade?.trim()) return true;
     return pessoa.cidade.toLowerCase().includes(cidade.toLowerCase());
+  }
+
+  private aplicarFiltroSexo(pessoa: Pessoa, sexo?: string): boolean {
+    return !sexo || pessoa.sexo === sexo;
   }
 
   private extrairListaUnica(pessoas: Pessoa[], campo: keyof Pessoa): string[] {
