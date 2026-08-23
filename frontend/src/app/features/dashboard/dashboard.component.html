@@ -1,0 +1,163 @@
+<div class="dashboard">
+  <header class="page-header">
+    <div>
+      <h1>Pessoas cadastradas</h1>
+      <p>Gerencie as fichas e encontre candidatos por região, idade e status.</p>
+    </div>
+    <div class="page-header__actions">
+      <button mat-stroked-button (click)="refresh()" [disabled]="loading()">
+        <mat-icon>refresh</mat-icon> Atualizar
+      </button>
+      <a mat-flat-button color="primary" routerLink="/register">
+        <mat-icon>person_add</mat-icon> Novo cadastro
+      </a>
+    </div>
+  </header>
+
+  <!-- Stats -->
+  <section class="stats">
+    <div class="stat">
+      <span class="stat__value">{{ stats().total }}</span>
+      <span class="stat__label">Total</span>
+    </div>
+    <div class="stat stat--success">
+      <span class="stat__value">{{ stats().active }}</span>
+      <span class="stat__label">Ativos</span>
+    </div>
+    <div class="stat stat--accent">
+      <span class="stat__value">{{ stats().recent }}</span>
+      <span class="stat__label">Novos ({{ recentDays }} dias)</span>
+    </div>
+    <div class="stat stat--danger">
+      <span class="stat__value">{{ stats().doNotCall }}</span>
+      <span class="stat__label">Não chamar</span>
+    </div>
+  </section>
+
+  <!-- Filters -->
+  <section class="filters card">
+    <mat-form-field appearance="outline" class="filters__search">
+      <mat-label>Buscar por nome, CPF, telefone…</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput [ngModel]="search()" (ngModelChange)="search.set($event)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Região</mat-label>
+      <mat-select [ngModel]="region()" (ngModelChange)="region.set($event)">
+        <mat-option value="">Todas</mat-option>
+        @for (r of regions(); track r) { <mat-option [value]="r">{{ r }}</mat-option> }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Cidade</mat-label>
+      <mat-select [ngModel]="city()" (ngModelChange)="city.set($event)">
+        <mat-option value="">Todas</mat-option>
+        @for (c of cities(); track c) { <mat-option [value]="c">{{ c }}</mat-option> }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select [ngModel]="status()" (ngModelChange)="status.set($event)">
+        <mat-option value="">Todos</mat-option>
+        <mat-option value="active">Ativos</mat-option>
+        <mat-option value="inactive">Inativos</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filters__age">
+      <mat-label>Idade mín.</mat-label>
+      <input matInput type="number" min="0" [ngModel]="minAge()" (ngModelChange)="minAge.set($event)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="filters__age">
+      <mat-label>Idade máx.</mat-label>
+      <input matInput type="number" min="0" [ngModel]="maxAge()" (ngModelChange)="maxAge.set($event)" />
+    </mat-form-field>
+
+    <div class="filters__toggles">
+      <mat-slide-toggle [ngModel]="onlyRecent()" (ngModelChange)="onlyRecent.set($event)">
+        Só novos
+      </mat-slide-toggle>
+      <mat-slide-toggle [ngModel]="hideDoNotCall()" (ngModelChange)="hideDoNotCall.set($event)">
+        Ocultar "não chamar"
+      </mat-slide-toggle>
+      <button mat-button (click)="clearFilters()">
+        <mat-icon>filter_alt_off</mat-icon> Limpar
+      </button>
+    </div>
+  </section>
+
+  <!-- Results -->
+  @if (loading()) {
+    <div class="state"><mat-spinner diameter="40"></mat-spinner></div>
+  } @else if (error()) {
+    <div class="state state--error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-stroked-button (click)="refresh()">Tentar novamente</button>
+    </div>
+  } @else if (filtered().length === 0) {
+    <div class="state">
+      <mat-icon>inbox</mat-icon>
+      <p>Nenhuma pessoa encontrada com os filtros atuais.</p>
+    </div>
+  } @else {
+    <p class="results-count">{{ filtered().length }} resultado(s)</p>
+    <div class="people">
+      @for (person of filtered(); track person.id) {
+        <article class="person card" [class.person--inactive]="person.status === 'inactive'">
+          <div class="person__top">
+            <div class="avatar">
+              @if (person.photoUrl) {
+                <img [src]="person.photoUrl" [alt]="person.fullName" referrerpolicy="no-referrer" />
+              } @else {
+                <span>{{ person.fullName.charAt(0) || '?' }}</span>
+              }
+            </div>
+            <div class="person__id">
+              <h3>{{ person.fullName }}</h3>
+              <div class="badges">
+                @if (isRecent(person)) { <span class="badge badge--accent">Novo</span> }
+                @if (person.status === 'inactive') { <span class="badge badge--muted">Inativo</span> }
+                @if (person.doNotCall) {
+                  <span class="badge badge--danger" [matTooltip]="person.doNotCallReason || ''">Não chamar</span>
+                }
+              </div>
+            </div>
+            <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Ações">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+              <button mat-menu-item (click)="openWhatsApp(person)">
+                <mat-icon>chat</mat-icon> WhatsApp
+              </button>
+              <button mat-menu-item (click)="generatePdf(person)">
+                <mat-icon>picture_as_pdf</mat-icon> Gerar PDF
+              </button>
+              <button mat-menu-item (click)="toggleDoNotCall(person)">
+                <mat-icon>{{ person.doNotCall ? 'phone_enabled' : 'phone_disabled' }}</mat-icon>
+                {{ person.doNotCall ? 'Liberar contato' : 'Não chamar novamente' }}
+              </button>
+              <button mat-menu-item (click)="toggleStatus(person)">
+                <mat-icon>{{ person.status === 'active' ? 'block' : 'check_circle' }}</mat-icon>
+                {{ person.status === 'active' ? 'Inativar' : 'Reativar' }}
+              </button>
+            </mat-menu>
+          </div>
+
+          <dl class="person__info">
+            <div><dt>Idade</dt><dd>{{ age(person) ?? '—' }}{{ age(person) != null ? ' anos' : '' }}</dd></div>
+            <div><dt>Região</dt><dd>{{ person.region || '—' }}</dd></div>
+            <div><dt>Cidade</dt><dd>{{ person.city || '—' }}</dd></div>
+            <div><dt>Telefone</dt><dd>{{ format.phone(person.phone) || '—' }}</dd></div>
+            <div><dt>CPF</dt><dd>{{ format.cpf(person.cpf) || '—' }}</dd></div>
+            <div><dt>Cadastro</dt><dd>{{ format.date(person.createdAt) }}</dd></div>
+          </dl>
+        </article>
+      }
+    </div>
+  }
+</div>

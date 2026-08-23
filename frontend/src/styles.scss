@@ -1,89 +1,58 @@
+@use '@angular/material' as mat;
 
-// Importar tema personalizado da Rpromo
-@use 'theme.scss';
-
-/* ===== MELHORIAS GLOBAIS DOS FORMULÁRIOS ===== */
-
-/* Padding interno dos inputs */
-::ng-deep .mat-mdc-form-field {
-  .mat-mdc-text-field-wrapper {
-    border-radius: 8px;
-  }
-
-  .mat-mdc-form-field-input-control {
-    padding: 14px 16px !important;
-    font-size: 16px;
-  }
-
-  /* Labels com mais espaço */
-  .mat-mdc-form-field-label {
-    padding-left: 4px;
-  }
-
-  /* Ícones com espaçamento */
-  .mat-mdc-form-field-icon-suffix {
-    padding-right: 8px;
-  }
-
-  .mat-mdc-form-field-icon-prefix {
-    padding-left: 8px;
-  }
-
-  /* Bordas mais arredondadas */
-  .mdc-notched-outline {
-    border-radius: 8px;
-  }
-
-  /* Foco com cor Rpromo */
-  &.mat-focused .mdc-notched-outline {
-    border-color: var(--rpromo-primary) !important;
-    border-width: 2px;
-  }
-
-  /* Hover suave */
-  &:hover:not(.mat-focused) .mdc-notched-outline {
-    border-color: #999;
-  }
+// === Angular Material 3 theme (RPromo red brand) ===
+html {
+  @include mat.theme((
+    color: (
+      theme-type: light,
+      primary: mat.$red-palette,
+      tertiary: mat.$red-palette,
+    ),
+    typography: Inter,
+    density: 0,
+  ));
 }
 
-/* Select com padding melhor */
-::ng-deep .mat-mdc-select {
-  .mat-mdc-select-value {
-    padding: 0 4px;
-  }
+// === Design tokens (consumed by feature SCSS) ===
+:root {
+  --brand: #d32f2f;
+  --brand-dark: #b71c1c;
+  --brand-soft: #fdecec;
+
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-muted: #f4f5f7;
+  --border: #e6e8eb;
+
+  --text: #1f2430;
+  --text-muted: #6b7280;
+
+  --success: #16a34a;
+  --danger: #dc2626;
+
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.1);
+  --shadow-md: 0 4px 12px rgba(16, 24, 40, 0.08), 0 2px 6px rgba(16, 24, 40, 0.06);
+
+  --navbar-height: 64px;
 }
 
-/* Botões com melhor espaçamento */
-::ng-deep .mat-mdc-button,
-::ng-deep .mat-mdc-raised-button {
-  padding: 12px 24px !important;
-  border-radius: 8px !important;
-  font-weight: 500 !important;
-}
-
-/* Cards com sombra suave */
-::ng-deep .mat-mdc-card {
-  border-radius: 12px !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
-}
-
-body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
-  color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
-  margin: 0;
-}
-/* You can add global styles to this file, and also import other style files */
+// === Base ===
+* { box-sizing: border-box; }
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+body {
+  margin: 0;
+  color-scheme: light;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: Inter, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+// === Light, global component tweaks ===
+.mat-mdc-snack-bar-container { --mdc-snackbar-container-shape: 10px; }

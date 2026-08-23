@@ -1,0 +1,268 @@
+<div class="registration">
+  @if (done()) {
+    <div class="success card">
+      <mat-icon class="success__icon">check_circle</mat-icon>
+      <h2>Cadastro enviado!</h2>
+      <p>Seus dados foram recebidos. Obrigado!</p>
+      <button mat-flat-button color="primary" (click)="startNew()">
+        <mat-icon>add</mat-icon> Novo cadastro
+      </button>
+    </div>
+  } @else {
+    <form class="card" [formGroup]="form" (ngSubmit)="submit()">
+      <header class="form-header">
+        <h1>Ficha de cadastro</h1>
+        <p>Preencha seus dados. Campos com * são obrigatórios.</p>
+      </header>
+
+      <!-- Photo -->
+      <div class="photo-row">
+        <div class="photo-preview">
+          @if (photoPreview) {
+            <img [src]="photoPreview" alt="Foto" />
+          } @else {
+            <mat-icon>person</mat-icon>
+          }
+        </div>
+        <div class="photo-actions">
+          <button mat-stroked-button type="button" (click)="photoInput.click()">
+            <mat-icon>photo_camera</mat-icon> {{ photoFile ? 'Trocar foto' : 'Adicionar foto' }}
+          </button>
+          @if (photoFile) {
+            <button mat-button type="button" color="warn" (click)="removePhoto()">Remover</button>
+          }
+          <input #photoInput hidden type="file" accept="image/*" (change)="onPhotoSelected($event)" />
+        </div>
+      </div>
+
+      <!-- Personal -->
+      <section class="section">
+        <h3 class="section__title">Dados pessoais</h3>
+        <div class="grid">
+          <mat-form-field appearance="outline" class="col-2">
+            <mat-label>Nome completo</mat-label>
+            <input matInput formControlName="fullName" />
+            @if (fieldError('fullName')) { <mat-error>{{ fieldError('fullName') }}</mat-error> }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>CPF</mat-label>
+            <input matInput formControlName="cpf" inputmode="numeric" maxlength="11" placeholder="Somente números" />
+            @if (fieldError('cpf')) { <mat-error>{{ fieldError('cpf') }}</mat-error> }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Data de nascimento</mat-label>
+            <input matInput type="date" formControlName="birthDate" />
+            @if (fieldError('birthDate')) { <mat-error>{{ fieldError('birthDate') }}</mat-error> }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Telefone</mat-label>
+            <input matInput formControlName="phone" inputmode="numeric" placeholder="DDD + número" />
+            @if (fieldError('phone')) { <mat-error>{{ fieldError('phone') }}</mat-error> }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>E-mail</mat-label>
+            <input matInput formControlName="email" type="email" />
+            @if (fieldError('email')) { <mat-error>{{ fieldError('email') }}</mat-error> }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Sexo</mat-label>
+            <mat-select formControlName="sex">
+              @for (opt of sexOptions; track opt.value) {
+                <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Raça/Cor</mat-label>
+            <mat-select formControlName="raceColor">
+              @for (opt of raceColorOptions; track opt.value) {
+                <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>RG</mat-label>
+            <input matInput formControlName="rg" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Órgão emissor</mat-label>
+            <input matInput formControlName="issuingAgency" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Data de expedição</mat-label>
+            <input matInput type="date" formControlName="issueDate" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Naturalidade</mat-label>
+            <input matInput formControlName="birthplace" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Nome do pai</mat-label>
+            <input matInput formControlName="fatherName" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Nome da mãe</mat-label>
+            <input matInput formControlName="motherName" />
+          </mat-form-field>
+        </div>
+      </section>
+
+      <!-- Address -->
+      <section class="section">
+        <h3 class="section__title">Endereço</h3>
+        <div class="grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Região/Área</mat-label>
+            <input matInput formControlName="region" placeholder="Ex.: Zona Norte" />
+            @if (fieldError('region')) { <mat-error>{{ fieldError('region') }}</mat-error> }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Cidade</mat-label>
+            <input matInput formControlName="city" />
+            @if (fieldError('city')) { <mat-error>{{ fieldError('city') }}</mat-error> }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Bairro</mat-label>
+            <input matInput formControlName="neighborhood" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="col-2">
+            <mat-label>Rua</mat-label>
+            <input matInput formControlName="street" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>CEP</mat-label>
+            <input matInput formControlName="zipCode" inputmode="numeric" maxlength="8" />
+          </mat-form-field>
+        </div>
+      </section>
+
+      <!-- Optional: documents -->
+      <mat-expansion-panel class="panel">
+        <mat-expansion-panel-header>
+          <mat-panel-title>Documentos (opcional)</mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Título de eleitor</mat-label>
+            <input matInput formControlName="voterId" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Zona</mat-label>
+            <input matInput formControlName="voterZone" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Seção</mat-label>
+            <input matInput formControlName="voterSection" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Carteira de trabalho</mat-label>
+            <input matInput formControlName="workCard" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Emissão da carteira</mat-label>
+            <input matInput type="date" formControlName="workCardIssueDate" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>PIS</mat-label>
+            <input matInput formControlName="pis" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Certificado de reservista</mat-label>
+            <input matInput formControlName="militaryCert" />
+          </mat-form-field>
+        </div>
+      </mat-expansion-panel>
+
+      <!-- Optional: banking -->
+      <mat-expansion-panel class="panel">
+        <mat-expansion-panel-header>
+          <mat-panel-title>Dados bancários (opcional)</mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Tipo de conta</mat-label>
+            <mat-select formControlName="accountType">
+              @for (opt of accountTypeOptions; track opt.value) {
+                <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Banco</mat-label>
+            <input matInput formControlName="bank" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Agência</mat-label>
+            <input matInput formControlName="bankAgency" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Conta</mat-label>
+            <input matInput formControlName="accountNumber" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="col-2">
+            <mat-label>Chave PIX</mat-label>
+            <input matInput formControlName="pixKey" />
+          </mat-form-field>
+        </div>
+      </mat-expansion-panel>
+
+      <!-- Family -->
+      <section class="section">
+        <h3 class="section__title">Filhos</h3>
+        <mat-checkbox
+          formControlName="hasChildren"
+          (change)="onHasChildrenChange($event.checked)"
+        >Tem filhos?</mat-checkbox>
+
+        @if (form.value.hasChildren) {
+          <div class="children" formArrayName="children">
+            @for (child of children.controls; track $index) {
+              <div class="child-row" [formGroupName]="$index">
+                <mat-form-field appearance="outline">
+                  <mat-label>Nome do filho</mat-label>
+                  <input matInput formControlName="name" />
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Nascimento</mat-label>
+                  <input matInput type="date" formControlName="birthDate" />
+                </mat-form-field>
+                <button mat-icon-button type="button" color="warn" (click)="removeChild($index)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            }
+            <button mat-stroked-button type="button" (click)="addChild()">
+              <mat-icon>add</mat-icon> Adicionar filho
+            </button>
+          </div>
+        }
+      </section>
+
+      <div class="actions">
+        <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
+          @if (submitting()) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            <ng-container><mat-icon>send</mat-icon> Enviar cadastro</ng-container>
+          }
+        </button>
+      </div>
+    </form>
+  }
+</div>

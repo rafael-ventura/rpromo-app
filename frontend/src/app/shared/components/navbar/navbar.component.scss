@@ -1,132 +1,49 @@
-// Forçar estilo da toolbar
-:host ::ng-deep .mat-toolbar.rpromo-navbar {
-  background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%) !important;
-  color: white !important;
-  box-shadow: 0 2px 10px rgba(211, 47, 47, 0.3) !important;
+.navbar {
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+  padding: 0;
+  height: var(--navbar-height);
 }
 
-.navbar-container {
+.navbar__inner {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
-  padding: 0 8px;
-  margin: 0;
+  gap: 16px;
+  padding: 0 16px;
 }
 
-.logo-section {
+.brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-left: 8px;
+  gap: 10px;
+  text-decoration: none;
+  color: #fff;
 
-  .logo-container {
-    position: relative;
-    width: 40px;
-    height: 40px;
-
-    .logo {
-      border-radius: 4px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      max-width: 100%;
-      max-height: 100%;
-    }
-
-    .logo-fallback {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 4px;
-
-      mat-icon {
-        color: white;
-        font-size: 24px;
-        width: 24px;
-        height: 24px;
-      }
-    }
-  }
-
-  .app-title {
-    font-size: 1.25rem;
-    font-weight: 500;
-    color: white !important;
-    margin: 0;
-  }
+  &__logo { background: #fff; border-radius: 6px; padding: 2px; }
+  &__title { font-size: 1.1rem; font-weight: 600; }
 }
 
-.nav-links {
+.navbar__links {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 4px;
 
-    .nav-button {
-    color: rgba(255, 255, 255, 0.87) !important;
-    font-weight: 500;
-    transition: all 0.3s ease;
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.1) !important;
-      color: white !important;
-    }
-
-    &.active-link {
-      background-color: rgba(255, 255, 255, 0.15) !important;
-      color: white !important;
-    }
-
-    mat-icon {
-      margin-right: 8px;
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-      color: inherit !important;
-    }
-  }
+  .is-active { background: rgba(255, 255, 255, 0.16); border-radius: var(--radius-sm); }
+  mat-icon { margin-right: 6px; }
 }
 
-.menu-section {
-  .menu-button {
-    color: rgba(255, 255, 255, 0.87) !important;
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.1) !important;
-      color: white !important;
-    }
-
-    mat-icon {
-      color: inherit !important;
-    }
-  }
+// Force white text/icons over the colored toolbar
+:host ::ng-deep .navbar__links {
+  .mat-mdc-button, .mdc-button__label, .mat-icon { color: #fff !important; }
+  .mat-mdc-button:hover { background-color: rgba(255, 255, 255, 0.12); }
 }
 
-// Responsividade
-@media (max-width: 768px) {
-  .navbar-container {
-    padding: 0 8px;
-  }
-
-  .app-title {
-    font-size: 1.1rem;
-  }
-
-  .nav-links {
-    display: none; // Esconder links em mobile - mostrar apenas menu
-  }
-}
-
-@media (max-width: 480px) {
-  .logo-section {
-    gap: 8px;
-
-    .logo {
-      height: 32px !important;
-    }
-
-    .app-title {
-      font-size: 1rem;
-    }
-  }
+@media (max-width: 520px) {
+  .brand__title { display: none; }
+  .navbar__links mat-icon { margin-right: 0; }
 }
