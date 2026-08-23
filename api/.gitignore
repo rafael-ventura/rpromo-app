@@ -1,0 +1,14 @@
+# Build output
+bin/
+obj/
+
+# Local SQLite database
+*.db
+*.db-shm
+*.db-wal
+
+# Uploaded photos (local dev storage)
+RPromo.Api/wwwroot/uploads/
+
+# IDE
+.vs/

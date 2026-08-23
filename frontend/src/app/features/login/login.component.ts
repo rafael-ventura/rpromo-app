@@ -82,11 +82,13 @@ export class LoginComponent {
   readonly error = signal<string | null>(null);
 
   submit(): void {
-    if (this.auth.login(this.password)) {
-      this.router.navigate(['/dashboard']);
-    } else {
-      this.error.set('Senha incorreta.');
-      this.password = '';
-    }
+    this.auth.login(this.password).subscribe(ok => {
+      if (ok) {
+        this.router.navigate(['/dashboard']);
+      } else {
+        this.error.set('Senha incorreta.');
+        this.password = '';
+      }
+    });
   }
 }

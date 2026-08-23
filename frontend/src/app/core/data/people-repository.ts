@@ -9,10 +9,11 @@ export interface UploadedPhoto {
 /**
  * The single seam between the app and its data store.
  *
- * Today the only implementation is {@link SheetsPeopleRepository} (Google Sheets
- * via Apps Script). Swapping to Firebase or a SQL backend later means writing a
- * new implementation and changing one line in `app.config.ts` — nothing else in
- * the app touches the storage details.
+ * Today the only implementation is {@link ApiPeopleRepository} (the RPromo .NET
+ * API). Swapping to a different backend later means writing a new implementation
+ * and changing one line in `app.config.ts` — nothing else in the app touches the
+ * storage details. (An earlier implementation, SheetsPeopleRepository, talked to
+ * Google Sheets via Apps Script — see apps-script/ for that history.)
  */
 export abstract class PeopleRepository {
   abstract list(): Observable<Person[]>;

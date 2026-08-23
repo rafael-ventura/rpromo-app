@@ -1,33 +1,48 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, catchError, map, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-/**
- * Front-only password gate. This is intentionally light: the password lives in
- * the bundle, so it only keeps the dashboard out of casual view. Real auth will
- * arrive with a real backend (Firebase Auth / SQL) — see the plan's "future".
- */
+interface LoginResponse {
+  token: string;
+  expiresAt: string;
+}
+
+/** Real admin auth against the RPromo API. UI is password-only; username is fixed. */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly STORAGE_KEY = 'rpromo_authenticated';
-  private readonly _isAuthenticated = signal(this.readSession());
+  private readonly http = inject(HttpClient);
+  private readonly STORAGE_KEY = 'rpromo_token';
+  private readonly ADMIN_USERNAME = 'admin';
 
+  private readonly _isAuthenticated = signal(!!this.token);
   readonly isAuthenticated = this._isAuthenticated.asReadonly();
 
-  login(password: string): boolean {
-    const ok = password === environment.adminPassword;
-    if (ok) {
-      sessionStorage.setItem(this.STORAGE_KEY, 'true');
-      this._isAuthenticated.set(true);
-    }
-    return ok;
+  get token(): string | null {
+    return sessionStorage.getItem(this.STORAGE_KEY);
+  }
+
+  login(password: string): Observable<boolean> {
+    return this.http
+      .post<LoginResponse>(`${environment.apiUrl}/api/auth/login`, {
+        username: this.ADMIN_USERNAME,
+        password,
+      })
+      .pipe(
+        map(res => {
+          sessionStorage.setItem(this.STORAGE_KEY, res.token);
+          this._isAuthenticated.set(true);
+          return true;
+        }),
+        catchError(() => {
+          this._isAuthenticated.set(false);
+          return of(false);
+        }),
+      );
   }
 
   logout(): void {
     sessionStorage.removeItem(this.STORAGE_KEY);
     this._isAuthenticated.set(false);
-  }
-
-  private readSession(): boolean {
-    return sessionStorage.getItem(this.STORAGE_KEY) === 'true';
   }
 }

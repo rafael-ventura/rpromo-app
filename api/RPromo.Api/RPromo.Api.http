@@ -1,0 +1,6 @@
+@RPromo.Api_HostAddress = http://localhost:5219
+
+GET {{RPromo.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

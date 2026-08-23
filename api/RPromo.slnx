@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="RPromo.Api.Tests/RPromo.Api.Tests.csproj" />
+  <Project Path="RPromo.Api/RPromo.Api.csproj" />
+</Solution>
